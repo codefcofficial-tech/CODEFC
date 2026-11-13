@@ -1,13 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080B08">
-  <title>CODEFC — Sports Codes & AI Videos</title>
   <meta name="description" content="CODEFC sports betting codes and AI video creation platform.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CODEFC">
 
+  <title>CODEFC — Sports Codes & AI Videos</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="./codefc-icon-192.png">
+  <link rel="apple-touch-icon" href="./codefc-icon-192.png">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -45,7 +51,11 @@
         <div class="hero-buttons">
           <a href="#free-codes" class="btn-primary">Explore Codes</a>
           <a href="#ai-video" class="btn-secondary">AI Video Studio</a>
+          <button type="button" class="btn-secondary" id="installButton" hidden>
+            Install CODEFC
+          </button>
         </div>
+        <p id="installHelp" class="install-help" role="status" aria-live="polite"></p>
       </div>
 
       <div class="hero-card">
@@ -120,5 +130,49 @@
   </footer>
 
   <script src="script.js"></script>
+
+  <script>
+    // Register the service worker so CODEFC can be installed and cache its shell.
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(error => console.error("CODEFC service worker registration failed:", error));
+      });
+    }
+
+    // Show the install button only when the browser says installation is available.
+    let deferredInstallPrompt = null;
+    const installButton = document.getElementById("installButton");
+    const installHelp = document.getElementById("installHelp");
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installButton.hidden = false;
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installButton.hidden = true;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      installButton.hidden = true;
+      installHelp.textContent = "CODEFC has been installed on your device.";
+    });
+
+    // iPhone/iPad users install from the browser's Share menu.
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true;
+
+    if (isIOS && !isStandalone) {
+      installHelp.textContent = "To install: tap Share in Safari, then choose Add to Home Screen.";
+    }
+  </script>
 </body>
 </html>
