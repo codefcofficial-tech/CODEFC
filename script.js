@@ -130,6 +130,7 @@ if (signupForm) {
     }
   });
   }
+
 // ===================================
 // CODEFC USER LOGIN
 // ===================================
@@ -137,36 +138,97 @@ if (signupForm) {
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
+  const loginMessage = document.getElementById("loginMessage");
+  const loginButton = document.getElementById("loginButton");
+
+  // Show or hide password
+  const showPassword = document.getElementById("showPassword");
+
+  if (showPassword) {
+    showPassword.addEventListener("click", () => {
+      const passwordInput = document.getElementById("loginPassword");
+
+      const showing = passwordInput.type === "text";
+
+      passwordInput.type = showing ? "password" : "text";
+      showPassword.textContent = showing ? "Show" : "Hide";
+    });
+  }
+
+  // Sign in
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
 
-    const message = document.getElementById("loginMessage");
-    const loginButton = document.getElementById("loginButton");
-
     loginButton.disabled = true;
     loginButton.textContent = "Signing in...";
-    message.textContent = "";
+    loginMessage.textContent = "";
 
     try {
-      const { data, error } = await window.CODEFC_DB.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { data, error } =
+        await window.CODEFC_DB.auth.signInWithPassword({
+          email,
+          password
+        });
 
       if (error) throw error;
 
-      message.textContent = "Login successful! Redirecting...";
+      if (!data.session) {
+        throw new Error("Sign in could not be completed.");
+      }
+
+      loginMessage.style.color = "#39ff14";
+      loginMessage.textContent = "Login successful! Opening dashboard...";
 
       window.location.href = "dashboard.html";
 
     } catch (error) {
-      message.textContent = error.message;
+      loginMessage.style.color = "#ff7777";
+      loginMessage.textContent = error.message;
+
     } finally {
       loginButton.disabled = false;
       loginButton.textContent = "Sign In";
     }
   });
+
+  // Password recovery
+  const forgotPassword = document.getElementById("forgotPassword");
+
+  if (forgotPassword) {
+    forgotPassword.addEventListener("click", async (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById("loginEmail").value.trim();
+
+      if (!email) {
+        loginMessage.style.color = "#ff7777";
+        loginMessage.textContent = "Enter your email address first.";
+        return;
+      }
+
+      try {
+        const { error } =
+          await window.CODEFC_DB.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin +
+              window.location.pathname.replace(
+                "login.html",
+                "reset-password.html"
+              )
+          });
+
+        if (error) throw error;
+
+        loginMessage.style.color = "#39ff14";
+        loginMessage.textContent =
+          "If the account exists, a password reset email will be sent.";
+
+      } catch (error) {
+        loginMessage.style.color = "#ff7777";
+        loginMessage.textContent = error.message;
+      }
+    });
+  }
 }
