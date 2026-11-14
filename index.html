@@ -1,35 +1,32 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080B08">
-  <meta name="description" content="CODEFC sports betting codes and AI video creation platform.">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CODEFC">
-
   <title>CODEFC — Sports Codes & AI Videos</title>
+  <meta name="description" content="Discover free and premium SportyBet and 1xBet booking codes with CODEFC.">
 
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" type="image/png" sizes="192x192" href="./codefc-icon-192.png">
-  <link rel="apple-touch-icon" href="./codefc-icon-192.png">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
   <header class="header">
-    <a href="#" class="logo">CODE<span>FC</span><i>.</i></a>
+    <a href="#home" class="logo">CODE<span>FC</span><i>.</i></a>
 
-    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+    <button class="menu-toggle" id="menuToggle"
+      aria-label="Toggle navigation"
+      aria-expanded="false">
       ☰
     </button>
 
     <nav class="navigation" id="navigation">
       <a href="#home">Home</a>
       <a href="#free-codes">Free Codes</a>
-      <a href="#vip-codes">VIP Codes</a>
+      <a href="#paid-codes">Paid Codes</a>
+      <a href="#vip-membership">VIP</a>
       <a href="#ai-video">AI Videos</a>
       <a href="#account" class="account-link">Account</a>
     </nav>
@@ -37,6 +34,7 @@
 
   <main>
 
+    <!-- HERO -->
     <section class="hero" id="home">
       <div class="hero-content">
         <span class="eyebrow">WELCOME TO CODEFC</span>
@@ -44,135 +42,259 @@
         <h1>YOUR GAME.<br>YOUR <span>CODE.</span></h1>
 
         <p>
-          Discover betting codes and explore a new way
-          to create promotional videos with AI.
+          Discover free betting codes, unlock premium selections
+          and explore creative tools for your brand.
         </p>
 
         <div class="hero-buttons">
-          <a href="#free-codes" class="btn-primary">Explore Codes</a>
-          <a href="#ai-video" class="btn-secondary">AI Video Studio</a>
-          <button type="button" class="btn-secondary" id="installButton" hidden>
-            Install CODEFC
-          </button>
+          <a href="#free-codes" class="btn-primary">Explore Free Codes</a>
+          <a href="#paid-codes" class="btn-secondary">Explore Premium</a>
         </div>
-        <p id="installHelp" class="install-help" role="status" aria-live="polite"></p>
       </div>
 
       <div class="hero-card">
         <span class="live-dot"></span>
         <span class="card-label">CODEFC PLATFORM</span>
+
         <h2>ONE PLATFORM.<br>MORE POSSIBILITIES.</h2>
-        <p>Sports codes and creative tools in one place.</p>
+
+        <p>
+          Free codes. Premium codes. VIP access.
+        </p>
+
         <div class="hero-decoration">FC</div>
       </div>
     </section>
 
+
+    <!-- SUPPORTED PLATFORMS -->
+    <section class="platform-section">
+      <p>SUPPORTED BETTING PLATFORMS</p>
+
+      <div class="platform-list">
+        <span>SPORTYBET</span>
+        <span>1XBET</span>
+      </div>
+    </section>
+
+
+    <!-- FREE CODES -->
     <section class="section" id="free-codes">
+
       <div class="section-heading">
         <div>
-          <span class="eyebrow">START HERE</span>
+          <span class="eyebrow">OPEN TO EVERYONE</span>
           <h2>Free <span>Codes</span></h2>
-          <p>Explore available SportyBet booking codes.</p>
+          <p>Browse and copy free codes without creating an account.</p>
         </div>
+
         <span class="section-tag">FREE</span>
+      </div>
+
+      <div class="platform-filter">
+        <span class="filter-label">AVAILABLE ON</span>
+        <span class="platform-chip">SportyBet</span>
+        <span class="platform-chip">1xBet</span>
       </div>
 
       <div class="empty-card">
         <div class="empty-icon">⚽</div>
-        <h3>No codes published yet</h3>
-        <p>New codes will appear here when they are added.</p>
+        <h3>No free codes published yet</h3>
+        <p>
+          Check back soon. New free codes will appear here
+          when they are published.
+        </p>
       </div>
+
+      <p class="section-note">
+        No account or payment required to copy free codes.
+      </p>
+
     </section>
 
-    <section class="section" id="vip-codes">
+
+    <!-- PAID CODES -->
+    <section class="section" id="paid-codes">
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">INDIVIDUAL PREMIUM ACCESS</span>
+          <h2>Paid <span>Codes</span></h2>
+          <p>Unlock individual premium codes whenever you want.</p>
+        </div>
+
+        <span class="section-tag paid-tag">PREMIUM</span>
+      </div>
+
+      <div class="premium-card">
+
+        <div class="premium-card-top">
+          <span class="premium-label">INDIVIDUAL CODE</span>
+          <span class="lock-icon">🔒</span>
+        </div>
+
+        <h3>Unlock a Premium Code</h3>
+
+        <p>
+          Choose an available code, complete payment and
+          get access after your payment is verified.
+        </p>
+
+        <div class="price-display">
+          <strong>₦500</strong>
+          <span>PER CODE</span>
+        </div>
+
+        <ul class="feature-list">
+          <li>✓ One payment per code</li>
+          <li>✓ SportyBet and 1xBet support</li>
+          <li>✓ Code revealed after payment approval</li>
+          <li>✓ Copy your unlocked code</li>
+        </ul>
+
+        <a href="#account" class="btn-primary">
+          Create Account to Continue
+        </a>
+
+      </div>
+
+      <p class="section-note">
+        An account is required before purchasing premium codes.
+      </p>
+
+    </section>
+
+
+    <!-- VIP MEMBERSHIP -->
+    <section class="section" id="vip-membership">
+
       <div class="section-heading">
         <div>
           <span class="eyebrow">EXCLUSIVE ACCESS</span>
-          <h2>VIP <span>Codes</span></h2>
-          <p>Access exclusive codes after payment approval.</p>
+          <h2>VIP <span>Membership</span></h2>
+          <p>Get access to the CODEFC VIP collection.</p>
         </div>
+
         <span class="section-tag vip-tag">VIP</span>
       </div>
 
-      <div class="empty-card vip-card">
-        <div class="empty-icon">♛</div>
-        <h3>VIP section</h3>
-        <p>VIP codes will be available here soon.</p>
-        <a href="#account" class="btn-primary">Get Started</a>
+      <div class="premium-card vip-premium-card">
+
+        <div class="premium-card-top">
+          <span class="premium-label">CODEFC VIP</span>
+          <span class="lock-icon">♛</span>
+        </div>
+
+        <h3>Become a VIP Member</h3>
+
+        <p>
+          Unlock access to exclusive VIP codes with
+          a 30-day membership.
+        </p>
+
+        <div class="price-display">
+          <strong>₦15,000</strong>
+          <span>30 DAYS</span>
+        </div>
+
+        <ul class="feature-list">
+          <li>✓ Access to VIP codes</li>
+          <li>✓ SportyBet and 1xBet support</li>
+          <li>✓ 30-day membership period</li>
+          <li>✓ Automatic membership expiry</li>
+          <li>✓ Option to renew membership</li>
+        </ul>
+
+        <a href="#account" class="btn-primary">
+          Join CODEFC VIP
+        </a>
+
       </div>
+
+      <p class="section-note">
+        Registration and verified payment are required for VIP access.
+      </p>
+
     </section>
 
+
+    <!-- AI VIDEO -->
     <section class="section ai-section" id="ai-video">
+
       <div class="ai-content">
         <span class="eyebrow">COMING SOON</span>
+
         <h2>CREATE WITH <span>AI.</span></h2>
+
         <p>
           Turn your ideas, music and images into promotional
           videos for your brand and social media.
         </p>
-        <span class="coming-soon">AI VIDEO GENERATOR — COMING SOON</span>
+
+        <span class="coming-soon">
+          AI VIDEO GENERATOR — COMING SOON
+        </span>
       </div>
+
       <div class="ai-icon">▶</div>
+
     </section>
 
+
+    <!-- ACCOUNT -->
     <section class="section account-section" id="account">
+
+      <span class="eyebrow">YOUR PERSONAL SPACE</span>
+
       <h2>Your CODEFC <span>Account</span></h2>
-      <p>Sign in or create an account to access platform features.</p>
-      <span class="coming-soon">ACCOUNT SYSTEM — COMING SOON</span>
+
+      <p>
+        Create an account to purchase individual premium codes,
+        join VIP and manage your purchases.
+      </p>
+
+      <div class="account-actions">
+        <a href="signup.html" class="btn-primary">
+          Create Account
+        </a>
+
+        <a href="login.html" class="btn-secondary">
+          Sign In
+        </a>
+      </div>
+
+      <p class="account-note">
+        Just browsing free codes? You don't need an account.
+      </p>
+
     </section>
 
   </main>
 
+
+  <!-- FOOTER -->
   <footer class="footer">
-    <a href="#home" class="logo">CODE<span>FC</span><i>.</i></a>
+
+    <a href="#home" class="logo">
+      CODE<span>FC</span><i>.</i>
+    </a>
+
     <p>Sports codes. Creative possibilities.</p>
-    <p class="copyright">© 2026 CODEFC. All rights reserved.</p>
+
+    <div class="footer-links">
+      <a href="#free-codes">Free Codes</a>
+      <a href="#paid-codes">Paid Codes</a>
+      <a href="#vip-membership">VIP</a>
+    </div>
+
+    <p class="copyright">
+      © 2026 CODEFC. All rights reserved.
+    </p>
+
   </footer>
 
   <script src="script.js"></script>
 
-  <script>
-    // Register the service worker so CODEFC can be installed and cache its shell.
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js")
-          .catch(error => console.error("CODEFC service worker registration failed:", error));
-      });
-    }
-
-    // Show the install button only when the browser says installation is available.
-    let deferredInstallPrompt = null;
-    const installButton = document.getElementById("installButton");
-    const installHelp = document.getElementById("installHelp");
-
-    window.addEventListener("beforeinstallprompt", (event) => {
-      event.preventDefault();
-      deferredInstallPrompt = event;
-      installButton.hidden = false;
-    });
-
-    installButton.addEventListener("click", async () => {
-      if (!deferredInstallPrompt) return;
-
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      installButton.hidden = true;
-    });
-
-    window.addEventListener("appinstalled", () => {
-      installButton.hidden = true;
-      installHelp.textContent = "CODEFC has been installed on your device.";
-    });
-
-    // iPhone/iPad users install from the browser's Share menu.
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches
-      || window.navigator.standalone === true;
-
-    if (isIOS && !isStandalone) {
-      installHelp.textContent = "To install: tap Share in Safari, then choose Add to Home Screen.";
-    }
-  </script>
 </body>
-</html>
+      </html>
+
