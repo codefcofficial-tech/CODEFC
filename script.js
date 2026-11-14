@@ -114,15 +114,16 @@ if (signupForm) {
 
     try {
       const { data, error } = await window.CODEFC_DB.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            phone: phone
-          }
-        }
-      });
+  email,
+  password,
+  options: {
+    emailRedirectTo: "https://codefcofficial-tech.github.io/CODEFC/",
+    data: {
+      full_name: fullName,
+      phone: phone
+    }
+  }
+});
 
       if (error) throw error;
 
