@@ -219,14 +219,16 @@
 
   </main>
       
-  <script
+  
+<script
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  onload="console.log('SUPABASE LIBRARY LOADED')"
-  onerror="console.error('SUPABASE LIBRARY FAILED')">
+  onload="alert('CDN loaded. Supabase: ' + typeof window.supabase)"
+  onerror="alert('CDN FAILED TO LOAD')">
 </script>
 
 <script src="supabase.js"></script>
 <script src="script.js"></script>
+  
 alert(
   "Supabase library: " + typeof window.supabase +
   "\nCODEFC database: " + typeof window.CODEFC_DB
