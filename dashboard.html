@@ -283,12 +283,18 @@ function money(value) {
 // ===================================
 
 async function loadDashboard() {
+
+  if (!db || !db.auth) {
+    window.location.replace("login.html");
+    return;
+  }
+
   const { data: { session }, error } =
     await db.auth.getSession();
 
   if (error || !session) {
-    window.location.replace("index.html");
-    return;
+  window.location.replace("login.html");
+  return;
   }
 
   const user = session.user;
@@ -309,7 +315,7 @@ async function loadDashboard() {
 async function loadProfile(user) {
   const { data, error } = await db
     .from("profiles")
-    .select("id, full__name, phone, created_at")
+    .select("id, full_name, phone, created_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -328,7 +334,7 @@ async function loadProfile(user) {
     return;
   }
 
-  const name = data.full__name || "User";
+  const name = data.full_name || "User";
 
   setText("userName", name.split(" ")[0]);
   setText("profileName", name);
@@ -537,9 +543,10 @@ $("logoutBtn").addEventListener("click", async () => {
 $("vipButton").addEventListener("click", () => {
   alert("VIP payment checkout will be connected next.");
 });
+
 loadDashboard();
 </script>
 
 </body>
-      </html>
+</html>
       
