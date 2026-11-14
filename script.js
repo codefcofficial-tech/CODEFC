@@ -1,24 +1,5 @@
 
 // ===================================
-// CODEFC SUPABASE CONNECTION
-// ===================================
-
-const SUPABASE_URL = "https://nooanrlldbgushpflmln.supabase.co";
-
-const SUPABASE_ANON_KEY = "sb_publishable_awJWAfX4VfQ_lxl1ST0gXw_1NkzbXkH";
-
-const CODEFC_DB = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-// Make database client available to other CODEFC scripts
-window.CODEFC_DB = CODEFC_DB;
-
-console.log("CODEFC Supabase client initialized");
-
-
-// ===================================
 // MOBILE NAVIGATION
 // ===================================
 
