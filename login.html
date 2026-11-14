@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080B08">
+
+  <title>Sign In — CODEFC</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px 18px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      padding: 35px 25px;
+      background: #101510;
+      border: 1px solid #263126;
+      border-radius: 18px;
+    }
+
+    .login-card h1 {
+      font-size: 30px;
+      margin: 25px 0 8px;
+    }
+
+    .login-description {
+      color: #a5afa5;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .login-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .login-form input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 9px;
+      border: 1px solid #303b30;
+      background: #080B08;
+      color: white;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .login-form input:focus {
+      border-color: #39ff14;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 65px;
+    }
+
+    .show-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #39ff14;
+      cursor: pointer;
+    }
+
+    .login-form button[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 9px;
+      background: #39ff14;
+      color: #080B08;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .login-form button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .login-message {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .forgot-password {
+      text-align: right;
+      margin-top: -8px;
+    }
+
+    .forgot-password a,
+    .login-bottom a {
+      color: #39ff14;
+      text-decoration: none;
+    }
+
+    .login-bottom {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+    }
+
+    .back-home {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #a5afa5;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="login-page">
+
+    <section class="login-card">
+
+      <a href="index.html" class="logo">
+        CODE<span>FC</span><i>.</i>
+      </a>
+
+      <h1>Welcome back</h1>
+
+      <p class="login-description">
+        Sign in to your CODEFC account to access
+        your premium codes, VIP membership
+        and purchases.
+      </p>
+
+      <form class="login-form" id="loginForm">
+
+        <div>
+          <label for="loginEmail">Email Address</label>
+          <input
+            type="email"
+            id="loginEmail"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div>
+          <label for="loginPassword">Password</label>
+
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="loginPassword"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+
+            <button
+              type="button"
+              class="show-password"
+              id="showPassword"
+            >
+              Show
+            </button>
+          </div>
+        </div>
+
+        <div class="forgot-password">
+          <a href="#" id="forgotPassword">
+            Forgot password?
+          </a>
+        </div>
+
+        <button type="submit" id="loginButton">
+          Sign In
+        </button>
+
+        <p
+          class="login-message"
+          id="loginMessage"
+          aria-live="polite"
+        ></p>
+
+      </form>
+
+      <div class="login-bottom">
+        Don't have an account?
+        <a href="signup.html">Create Account</a>
+      </div>
+
+      <a href="index.html" class="back-home">
+        ← Back to CODEFC
+      </a>
+
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
+    const loginButton = document.getElementById("loginButton");
+
+    // Show or hide password
+    document.getElementById("showPassword")
+      .addEventListener("click", function () {
+        const passwordInput =
+          document.getElementById("loginPassword");
+
+        const showing = passwordInput.type === "text";
+
+        passwordInput.type = showing ? "password" : "text";
+        this.textContent = showing ? "Show" : "Hide";
+      });
+
+    // Sign in
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const email =
+        document.getElementById("loginEmail").value.trim();
+
+      const password =
+        document.getElementById("loginPassword").value;
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Signing in...";
+      loginMessage.textContent = "";
+
+      try {
+        const { data, error } =
+          await window.CODEFC_DB.auth.signInWithPassword({
+            email,
+            password
+          });
+
+        if (error) throw error;
+
+        if (!data.session) {
+          throw new Error("Sign in could not be completed. Please try again.");
+        }
+
+        loginMessage.style.color = "#39ff14";
+        loginMessage.textContent =
+          "Login successful! Opening CODEFC...";
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1000);
+
+      } catch (error) {
+        loginMessage.style.color = "#ff7777";
+        loginMessage.textContent = error.message;
+
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "Sign In";
+      }
+    });
+
+    // Password recovery
+    document.getElementById("forgotPassword")
+      .addEventListener("click", async function(event) {
+        event.preventDefault();
+
+        const email =
+          document.getElementById("loginEmail").value.trim();
+
+        if (!email) {
+          loginMessage.style.color = "#ff7777";
+          loginMessage.textContent =
+            "Enter your email address first.";
+          return;
+        }
+
+        try {
+          const { error } =
+            await window.CODEFC_DB.auth.resetPasswordForEmail(email, {
+              redirectTo: window.location.origin +
+                window.location.pathname.replace(
+                  "login.html",
+                  "reset-password.html"
+                )
+            });
+
+          if (error) throw error;
+
+          loginMessage.style.color = "#39ff14";
+          loginMessage.textContent =
+            "If the account exists, a password reset email will be sent.";
+
+        } catch (error) {
+          loginMessage.style.color = "#ff7777";
+          loginMessage.textContent = error.message;
+        }
+      });
+  </script>
+
+</body>
+</html>
