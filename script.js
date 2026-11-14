@@ -79,3 +79,72 @@ if (installButton) {
     installButton.hidden = true;
   });
 }
+// ===================================
+// CODEFC USER REGISTRATION
+// ===================================
+
+const signupForm = document.getElementById("signupForm");
+
+if (signupForm) {
+  signupForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const fullName = document.getElementById("fullName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    const message = document.getElementById("signupMessage");
+    const submitButton = signupForm.querySelector('button[type="submit"]');
+
+    if (password !== confirmPassword) {
+      message.textContent = "Passwords do not match.";
+      return;
+    }
+
+    if (password.length < 8) {
+      message.textContent = "Password must contain at least 8 characters.";
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Creating account...";
+    message.textContent = "";
+
+    try {
+      const { data, error } = await window.CODEFC_DB.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone: phone
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        message.textContent = "Account created successfully! Redirecting...";
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1500);
+
+      } else {
+        message.textContent =
+          "Account created! Please check your email to verify your account before signing in.";
+
+        signupForm.reset();
+      }
+
+    } catch (error) {
+      message.textContent = error.message;
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Create Account";
+    }
+  });
+  }
