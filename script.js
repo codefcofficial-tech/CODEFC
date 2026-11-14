@@ -22,3 +22,33 @@ navigationLinks.forEach(link => {
     menuToggle.setAttribute("aria-expanded", "false");
   });
 });
+// CODEFC PWA INSTALLATION
+
+let deferredInstallPrompt;
+
+const installButton = document.getElementById("installApp");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+
+  deferredInstallPrompt = event;
+  installButton.hidden = false;
+});
+
+installButton.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+
+  deferredInstallPrompt.prompt();
+
+  const result = await deferredInstallPrompt.userChoice;
+
+  if (result.outcome === "accepted") {
+    installButton.hidden = true;
+  }
+
+  deferredInstallPrompt = null;
+});
+
+window.addEventListener("appinstalled", () => {
+  installButton.hidden = true;
+});
