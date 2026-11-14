@@ -420,3 +420,228 @@ a {
     flex-direction: column;
   }
 }
+/* ==============================
+   CODEFC HOMEPAGE UPGRADES
+============================== */
+
+.platform-section {
+  padding: 28px 7%;
+  text-align: center;
+  background: #0D110D;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.platform-section > p {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.platform-list {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.platform-list span {
+  color: var(--green);
+  border: 1px solid var(--green-dark);
+  border-radius: 6px;
+  padding: 8px 22px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.platform-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.platform-chip {
+  background: #172117;
+  color: var(--green);
+  border: 1px solid #315031;
+  border-radius: 5px;
+  padding: 6px 13px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.section-note {
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+  margin-top: 17px;
+}
+
+.paid-tag {
+  color: #C5FFB9;
+  border-color: var(--green);
+}
+
+.premium-card {
+  background: linear-gradient(145deg, #142014, #0D120D);
+  border: 1px solid #315031;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+.premium-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.premium-label {
+  color: var(--green);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.lock-icon {
+  font-size: 23px;
+}
+
+.premium-card h3 {
+  font-size: 23px;
+  margin: 22px 0 8px;
+}
+
+.premium-card > p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.price-display strong {
+  color: var(--green);
+  font-size: 38px;
+}
+
+.price-display span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.feature-list {
+  list-style: none;
+  margin-bottom: 25px;
+}
+
+.feature-list li {
+  color: #D0D8D0;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.premium-card .btn-primary {
+  display: block;
+  text-align: center;
+}
+
+.vip-premium-card {
+  border-color: #547C39;
+  background: linear-gradient(145deg, #192519, #0D120D);
+}
+
+.vip-premium-card .premium-label {
+  color: #D9FFB8;
+}
+
+.vip-premium-card .price-display strong {
+  color: #D9FFB8;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-top: 25px;
+}
+
+.account-note {
+  margin-top: 20px !important;
+  font-size: 12px !important;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.footer-links a {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.footer-links a:hover {
+  color: var(--green);
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+  .platform-section {
+    padding: 25px 5%;
+  }
+
+  .platform-list {
+    gap: 10px;
+  }
+
+  .premium-card {
+    padding: 23px;
+  }
+
+  .premium-card h3 {
+    font-size: 21px;
+  }
+
+  .price-display strong {
+    font-size: 34px;
+  }
+
+  .account-actions {
+    flex-direction: column;
+  }
+
+  .account-actions a {
+    text-align: center;
+  }
+
+  .footer-links {
+    gap: 15px;
+  }
+
+}
