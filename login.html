@@ -218,109 +218,11 @@
     </section>
 
   </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js"></script>
-
+      
   <script>
-    const loginForm = document.getElementById("loginForm");
-    const loginMessage = document.getElementById("loginMessage");
-    const loginButton = document.getElementById("loginButton");
-
-    // Show or hide password
-    document.getElementById("showPassword")
-      .addEventListener("click", function () {
-        const passwordInput =
-          document.getElementById("loginPassword");
-
-        const showing = passwordInput.type === "text";
-
-        passwordInput.type = showing ? "password" : "text";
-        this.textContent = showing ? "Show" : "Hide";
-      });
-
-    // Sign in
-    loginForm.addEventListener("submit", async function(event) {
-      event.preventDefault();
-
-      const email =
-        document.getElementById("loginEmail").value.trim();
-
-      const password =
-        document.getElementById("loginPassword").value;
-
-      loginButton.disabled = true;
-      loginButton.textContent = "Signing in...";
-      loginMessage.textContent = "";
-
-      try {
-        const { data, error } =
-          await window.CODEFC_DB.auth.signInWithPassword({
-            email,
-            password
-          });
-
-        if (error) throw error;
-
-        if (!data.session) {
-          throw new Error("Sign in could not be completed. Please try again.");
-        }
-
-        loginMessage.style.color = "#39ff14";
-        loginMessage.textContent =
-          "Login successful! Opening CODEFC...";
-
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1000);
-
-      } catch (error) {
-        loginMessage.style.color = "#ff7777";
-        loginMessage.textContent = error.message;
-
-      } finally {
-        loginButton.disabled = false;
-        loginButton.textContent = "Sign In";
-      }
-    });
-
-    // Password recovery
-    document.getElementById("forgotPassword")
-      .addEventListener("click", async function(event) {
-        event.preventDefault();
-
-        const email =
-          document.getElementById("loginEmail").value.trim();
-
-        if (!email) {
-          loginMessage.style.color = "#ff7777";
-          loginMessage.textContent =
-            "Enter your email address first.";
-          return;
-        }
-
-        try {
-          const { error } =
-            await window.CODEFC_DB.auth.resetPasswordForEmail(email, {
-              redirectTo: window.location.origin +
-                window.location.pathname.replace(
-                  "login.html",
-                  "reset-password.html"
-                )
-            });
-
-          if (error) throw error;
-
-          loginMessage.style.color = "#39ff14";
-          loginMessage.textContent =
-            "If the account exists, a password reset email will be sent.";
-
-        } catch (error) {
-          loginMessage.style.color = "#ff7777";
-          loginMessage.textContent = error.message;
-        }
-      });
-  </script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="script.js"></script>
+  
 </body>
 </html>
