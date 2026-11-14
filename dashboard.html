@@ -250,8 +250,11 @@ footer {
 
 </main>
 
-<footer>© 2026 CODEFC. All rights reserved.</footer
-</footer>® powered by: fosky.j</footer
+<footer>
+  © 2026 CODEFC. All rights reserved.
+  <br>
+  Powered by: fosky.j
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
@@ -279,32 +282,48 @@ function money(value) {
   return "₦" + Number(value || 0).toLocaleString("en-NG");
 }
 
+
 // ===================================
 // AUTHENTICATION
 // ===================================
 
 async function loadDashboard() {
 
-  const db = window.CODEFC_DB;
-
   if (!db || !db.auth) {
     window.location.replace("login.html");
     return;
   }
 
-  const { data: { session }, error } =
-    await db.auth.getSession();
+  try {
+    const { data, error } = await db.auth.getSession();
 
-  if (error || !session) {
-    window.location.replace("login.html");
-    return;
+    if (error) throw error;
+
+    const session = data.session;
+
+    if (!session) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    console.log("CODEFC authenticated:", session.user.id);
+
+    // Show account email
+    setText("profileEmail", session.user.email || "Not available");
+
+    // Load dashboard information
+    await Promise.all([
+      loadProfile(session.user),
+      loadPurchases(session.user),
+      loadVIP(session.user)
+    ]);
+
+  } catch (error) {
+    console.error("Dashboard loading error:", error);
+    alert("Unable to load your dashboard. Please refresh.");
   }
-
-  console.log("CODEFC user authenticated:", session.user.id);
-
-  // Continue loading dashboard data here
 }
-
+  
 // ===================================
 // PROFILE
 // ===================================
