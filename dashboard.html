@@ -285,6 +285,8 @@ function money(value) {
 
 async function loadDashboard() {
 
+  const db = window.CODEFC_DB;
+
   if (!db || !db.auth) {
     window.location.replace("login.html");
     return;
@@ -294,19 +296,13 @@ async function loadDashboard() {
     await db.auth.getSession();
 
   if (error || !session) {
-  window.location.replace("login.html");
-  return;
+    window.location.replace("login.html");
+    return;
   }
 
-  const user = session.user;
+  console.log("CODEFC user authenticated:", session.user.id);
 
-  setText("profileEmail", user.email || "Not available");
-
-  await Promise.all([
-    loadProfile(user),
-    loadPurchases(user),
-    loadVIP(user)
-  ]);
+  // Continue loading dashboard data here
 }
 
 // ===================================
