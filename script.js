@@ -215,7 +215,7 @@ if (loginForm) {
             redirectTo: window.location.origin +
               window.location.pathname.replace(
                 "login.html",
-                "reset-password.html"
+                "reset_password.html"
               )
           });
 
