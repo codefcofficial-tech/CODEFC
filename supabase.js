@@ -6,7 +6,7 @@ const SUPABASE_URL = "https://nooanrlldbgushpflmln.supabase.co";
 
 const SUPABASE_ANON_KEY = "sb_publishable_awJWAfX4VfQ_lxl1ST0gXw_1NkzbXkH";
 
-const CODEFC_DB = window.supabase.createClient(
+window.CODEFC_DB = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
