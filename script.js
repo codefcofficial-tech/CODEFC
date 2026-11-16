@@ -29,37 +29,91 @@ if (menuToggle && navigation) {
 }
 
 
+
 // ===================================
 // CODEFC PWA INSTALLATION
 // ===================================
 
-let deferredInstallPrompt;
+let deferredInstallPrompt = null;
 
 const installButton = document.getElementById("installApp");
 
+function isAppInstalled() {
+  return window.matchMedia("(display-mode: standalone)").matches ||
+         window.navigator.standalone === true;
+}
+
+function updateInstallButton() {
+  if (!installButton) return;
+
+  if (isAppInstalled()) {
+    installButton.textContent = "APP INSTALLED ✓";
+    installButton.disabled = true;
+    installButton.classList.add("app-installed");
+  } else {
+    installButton.textContent = "↓ Install App";
+    installButton.disabled = false;
+    installButton.classList.remove("app-installed");
+  }
+}
+
 if (installButton) {
+
+  updateInstallButton();
 
   window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
 
     deferredInstallPrompt = event;
-    installButton.hidden = false;
+    updateInstallButton();
   });
 
   installButton.addEventListener("click", async () => {
-    if (!deferredInstallPrompt) return;
 
-    deferredInstallPrompt.prompt();
+    if (isAppInstalled()) {
+      updateInstallButton();
+      return;
+    }
 
-    await deferredInstallPrompt.userChoice;
+    if (!deferredInstallPrompt) {
+      alert(
+        "To install CODEFC:\n\n" +
+        "1. Open this website in Google Chrome.\n" +
+        "2. Tap the three dots at the top right.\n" +
+        "3. Select Install app or Add to Home screen."
+      );
+      return;
+    }
 
+    const promptEvent = deferredInstallPrompt;
     deferredInstallPrompt = null;
+
+    try {
+      await promptEvent.prompt();
+
+      const result = await promptEvent.userChoice;
+
+      if (result.outcome === "accepted") {
+        installButton.textContent = "INSTALLING...";
+      } else {
+        updateInstallButton();
+      }
+
+    } catch (error) {
+      console.error("CODEFC installation error:", error);
+      updateInstallButton();
+    }
   });
 
   window.addEventListener("appinstalled", () => {
-    installButton.hidden = true;
+    deferredInstallPrompt = null;
+
+    installButton.textContent = "APP INSTALLED ✓";
+    installButton.disabled = true;
+    installButton.classList.add("app-installed");
   });
 }
+
 // ===================================
 // CODEFC USER REGISTRATION
 // ===================================
