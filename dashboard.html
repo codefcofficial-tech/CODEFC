@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#080B08">
-<link rel="manifest" href="manifest.json">
 <title>My Dashboard | CODEFC</title>
 
 <style>
@@ -307,9 +306,7 @@ footer {
     <h1>Welcome back, <span id="userName">...</span> 👋</h1>
     <p class="muted">Your personal CODEFC dashboard.</p>
   </section>
-<button class="action" id="installApp" type="button">
-  Install CODEFC App
-</button>
+
   <section class="stats">
 
     <div class="card">
@@ -1278,139 +1275,6 @@ $("logoutBtn").addEventListener("click", async () => {
 
 $("vipButton").addEventListener("click", () => {
   window.location.href = "payment.html?type=vip";
-});
-
-// ===================================
-// CODEFC PWA INSTALLATION
-// ===================================
-
-let deferredInstallPrompt = null;
-
-const installButton = $("installApp");
-
-function isAppInstalled() {
-
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true
-  );
-
-}
-
-function updateInstallButton() {
-
-  if (isAppInstalled()) {
-
-    installButton.textContent = "APP INSTALLED ✓";
-    installButton.disabled = true;
-
-  } else {
-
-    installButton.textContent = "INSTALL CODEFC APP";
-    installButton.disabled = false;
-
-  }
-
-}
-
-
-// Capture the browser's installation prompt.
-
-window.addEventListener("beforeinstallprompt", event => {
-
-  event.preventDefault();
-
-  deferredInstallPrompt = event;
-
-  updateInstallButton();
-
-});
-
-
-// Detect successful installation.
-
-window.addEventListener("appinstalled", () => {
-
-  deferredInstallPrompt = null;
-
-  installButton.textContent = "APP INSTALLED ✓";
-  installButton.disabled = true;
-
-});
-
-
-// Handle installation button clicks.
-
-installButton.addEventListener("click", async () => {
-
-  if (isAppInstalled()) {
-
-    updateInstallButton();
-    return;
-
-  }
-
-  if (deferredInstallPrompt) {
-
-    const promptEvent = deferredInstallPrompt;
-
-    deferredInstallPrompt = null;
-
-    try {
-
-      await promptEvent.prompt();
-
-      const result = await promptEvent.userChoice;
-
-      if (result.outcome === "accepted") {
-
-        installButton.textContent = "INSTALLATION REQUESTED";
-
-      } else {
-
-        installButton.textContent = "INSTALL CODEFC APP";
-
-      }
-
-    } catch (error) {
-
-      console.error("Installation error:", error);
-
-      alert("Installation could not start. Please use your browser menu to install CODEFC.");
-
-    }
-
-    return;
-
-  }
-
-
-  // Manual installation instructions when no prompt is available.
-
-  const isIOS =
-    /iphone|ipad|ipod/i.test(navigator.userAgent);
-
-  if (isIOS) {
-
-    alert(
-      "To install CODEFC on your iPhone:\n\n" +
-      "1. Tap the Share button in Safari.\n" +
-      "2. Select Add to Home Screen.\n" +
-      "3. Tap Add."
-    );
-
-  } else {
-
-    alert(
-      "To install CODEFC on your Android phone:\n\n" +
-      "1. Open this website in Google Chrome.\n" +
-      "2. Tap the three dots at the top right.\n" +
-      "3. Select Install app or Add to Home screen.\n" +
-      "4. Follow the installation instructions."
-    );
-
-  }
-
 });
 
 // Register CODEFC service worker.
