@@ -1,2 +1,579 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080B08"><title>CODEFC Payments</title><style>*{box-sizing:border-box}body{margin:0;background:#080B08;color:#f5f5f5;font-family:Arial}header{padding:18px 6%;border-bottom:1px solid #263126;display:flex;justify-content:space-between}.logo{color:#39FF14;font-weight:900;font-size:22px;text-decoration:none}main{max-width:700px;margin:30px auto;padding:0 16px}.card{background:#111811;border:1px solid #263126;border-radius:13px;padding:22px;margin-bottom:16px}h1{font-size:25px}p{color:#9aa49a;font-size:13px;line-height:1.6}.price{color:#39FF14;font-size:25px;font-weight:bold}label{display:block;margin:16px 0 7px;font-size:13px}input,select{width:100%;padding:13px;background:#080B08;color:white;border:1px solid #354235;border-radius:8px}button{width:100%;padding:14px;background:#39FF14;color:#071007;border:0;border-radius:8px;font-weight:bold;margin-top:18px}button:disabled{opacity:.5}.notice{white-space:pre-wrap;background:#172217;padding:14px;border-radius:8px;font-size:13px;line-height:1.7}#message{white-space:pre-wrap;color:#39FF14;font-size:13px;margin-top:12px}.back{color:#39FF14;text-decoration:none}</style></head><body><header><a class="logo" href="index.html">CODEFC</a><a class="back" href="dashboard.html">Dashboard</a></header><main><section class="card"><h1 id="heading">Complete payment</h1><p id="intro">Transfer using the bank details below. Access remains locked until the Founder verifies payment.</p><div id="price" class="price">Loading...</div><div id="bank" class="notice">Loading bank details...</div><form id="form"><div id="codeWrap" hidden><label for="code">Choose premium code</label><select id="code" required></select></div><label for="sender">Account name used for transfer</label><input id="sender" maxlength="120" required><label for="ref">Transfer reference / narration</label><input id="ref" maxlength="120" required><button id="submit" type="submit">Submit for verification</button></form><div id="message"></div></section><section class="card"><b>Security reminder</b><p>Submitting a reference is not proof of payment. Never share your password, PIN, OTP or card details.</p></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase.js"></script><script>
-(async()=>{const db=window.CODEFC_DB,$=id=>document.getElementById(id),type=new URLSearchParams(location.search).get('type')==='code'?'code':'vip',say=t=>$('message').textContent=t;if(!db){say('Payment service unavailable.');return}const {data:{session}}=await db.auth.getSession();if(!session){location.replace('login.html');return}const user=session.user;if(type==='vip'){$('heading').textContent='CODEFC VIP Membership';$('intro').textContent='Transfer ₦15,000 for 30 days of VIP access. Membership begins only after Founder approval.';$('price').textContent='₦15,000 · 30 DAYS'}else{$('heading').textContent='Unlock an Individual Code';$('intro').textContent='Choose an active premium code and transfer ₦500. Access is granted after Founder approval.';$('price').textContent='₦500 · PER CODE';$('codeWrap').hidden=false;const {data,error}=await db.from('codes').select('id,platform,match_title,competition,expires_at,status,access_type').eq('access_type','paid').eq('status','active').order('created_at',{ascending:false});const sel=$('code');sel.add(new Option('Select a code',''));(data||[]).filter(c=>c.expires_at&&new Date(c.expires_at)>new Date()).forEach(c=>sel.add(new Option(`${c.match_title||'Match'} — ${c.platform||''} (${c.competition||''})`,c.id)));if(error||sel.options.length===1){sel.add(new Option(error?'Could not load codes':'No active paid codes available',''));$('submit').disabled=true}}const {data:bank,error}=await db.from('payment_settings').select('bank_name,account_name,account_number,instructions').limit(1).maybeSingle();if(error||!bank){$('bank').textContent='Bank transfer details are not available yet.';$('submit').disabled=true}else $('bank').textContent=[`Bank: ${bank.bank_name||'—'}`,`Account name: ${bank.account_name||'—'}`,`Account number: ${bank.account_number||'—'}`,bank.instructions||''].filter(Boolean).join('\n');$('form').onsubmit=async e=>{e.preventDefault();const b=$('submit');b.disabled=true;b.textContent='Submitting...';try{const sender=$('sender').value.trim(),ref=$('ref').value.trim();if(!sender||!ref)throw Error('Enter the sender account name and transfer reference.');if(type==='vip'){const {data:pending,error}=await db.from('vip_payment_requests').select('id').eq('user_id',user.id).eq('status','pending').limit(1);if(error)throw error;if(pending?.length)throw Error('You already have a pending VIP request.');const {error:ie}=await db.from('vip_payment_requests').insert({user_id:user.id,amount_ngn:15000,sender_name:sender,payment_reference:ref,status:'pending'});if(ie)throw ie}else{const codeId=$('code').value;if(!codeId)throw Error('Select a premium code.');const {data:old,error}=await db.from('code_purchases').select('id').eq('user_id',user.id).eq('code_id',codeId).in('status',['pending','approved']).limit(1);if(error)throw error;if(old?.length)throw Error('You already have a pending or approved purchase for this code.');const {error:ie}=await db.from('code_purchases').insert({code_id:codeId,user_id:user.id,amount_ngn:500,payment_reference:ref,status:'pending'});if(ie)throw ie}say('Request submitted. Access remains locked until the Founder confirms the transfer. Check your dashboard for updates.');$('form').reset()}catch(err){say(err.message||'Could not submit request.')}finally{b.disabled=false;b.textContent='Submit for verification'}}})();</script></body></html>
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080B08">
+<title>CODEFC Payments</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080B08;color:#f5f5f5;font-family:Arial}
+header{padding:18px 6%;border-bottom:1px solid #263126;display:flex;justify-content:space-between}
+.logo{color:#39FF14;font-weight:900;font-size:22px;text-decoration:none}
+main{max-width:700px;margin:30px auto;padding:0 16px}
+.card{background:#111811;border:1px solid #263126;border-radius:13px;padding:22px;margin-bottom:16px}
+h1{font-size:25px}
+p{color:#9aa49a;font-size:13px;line-height:1.7}
+.price{color:#39FF14;font-size:25px;font-weight:bold}
+label{display:block;margin:16px 0 7px;font-size:13px}
+input,select{width:100%;padding:13px;background:#080B08;color:white;border:1px solid #354235;border-radius:8px}
+button{padding:13px;background:#39FF14;color:#071007;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.submit{width:100%;margin-top:18px}
+.notice{white-space:pre-wrap;background:#172217;padding:14px;border-radius:8px;font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+#message{white-space:pre-wrap;font-size:13px;margin-top:14px;line-height:1.7}
+.success{color:#39FF14}
+.error{color:#ff7777}
+.muted{color:#9aa49a;font-size:13px}
+.back{color:#39FF14;text-decoration:none}
+.request{border-top:1px solid #293629;padding:13px 0}
+.request p{margin:5px 0}
+.pending{color:#ffd166}
+.approved{color:#39FF14}
+.rejected{color:#ff7777}
+.steps{padding-left:20px;color:#c2ccc2;font-size:13px;line-height:1.8}
+.small{font-size:12px;color:#9aa49a}
+</style>
+</head>
+
+<body>
+
+<header>
+<a class="logo" href="index.html">CODEFC</a>
+<a class="back" href="dashboard.html">Dashboard</a>
+</header>
+
+<main>
+
+<section class="card">
+
+<h1 id="heading">Complete payment</h1>
+
+<p id="intro">
+Follow the instructions below to make your payment.
+</p>
+
+<div id="price" class="price">Loading...</div>
+
+<h3>Bank transfer details</h3>
+
+<div id="bank" class="notice">
+Loading bank details...
+</div>
+
+<h3>How to make payment</h3>
+
+<ol class="steps">
+<li>Copy the CODEFC account number displayed above.</li>
+<li>Open your Nigerian banking app and transfer the required amount.</li>
+<li>Before confirming, check that the account name displayed by your bank matches the CODEFC account name above.</li>
+<li>Use CODEFC VIP as your transfer narration if your banking app requests one.</li>
+<li>After a successful transfer, return here and enter the exact name registered to the bank account you used.</li>
+<li>Enter the actual transaction reference generated by your bank. Do not enter the narration as the reference.</li>
+<li>Submit your request and wait for Founder verification.</li>
+</ol>
+
+<p class="small">
+Never share your bank PIN, OTP, password or card details.
+</p>
+
+<form id="form">
+
+<div id="codeWrap" hidden>
+<label for="code">Choose premium code</label>
+<select id="code">
+<option value="">Loading codes...</option>
+</select>
+</div>
+
+<label for="sender">Account name used for transfer</label>
+
+<input
+id="sender"
+maxlength="120"
+autocomplete="name"
+placeholder="Enter the exact name on your sending bank account"
+required
+>
+
+<label for="ref">Bank transaction reference</label>
+
+<input
+id="ref"
+maxlength="120"
+placeholder="Enter the transaction reference from your bank"
+required
+>
+
+<button id="submit" class="submit" type="submit" disabled>
+Loading payment service...
+</button>
+
+</form>
+
+<div id="message" role="status" aria-live="polite"></div>
+
+</section>
+
+
+<section class="card" id="historyCard">
+
+<h2>My payment requests</h2>
+
+<p>
+Check the status of your submitted payment requests below.
+</p>
+
+<div id="history">Loading your requests...</div>
+
+</section>
+
+
+<section class="card">
+
+<b>Payment verification</b>
+
+<p>
+Your payment request will remain pending until the CODEFC Founder
+confirms the transfer. Submitting a transaction reference does not
+automatically unlock a code or activate VIP membership.
+</p>
+
+</section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+(() => {
+
+const $ = id => document.getElementById(id);
+
+const params = new URLSearchParams(location.search);
+
+const type = params.get('type') === 'code' ? 'code' : 'vip';
+
+let db = null;
+let user = null;
+let ready = false;
+let submitting = false;
+let submitted = false;
+
+const form = $('form');
+const button = $('submit');
+
+
+function message(text, kind='') {
+  $('message').textContent = text;
+  $('message').className = kind;
+}
+
+
+function setButton(text, disabled=true) {
+  button.textContent = text;
+  button.disabled = disabled;
+}
+
+
+function statusLabel(status) {
+
+  const s = String(status || 'pending').toLowerCase();
+
+  const label = s.charAt(0).toUpperCase() + s.slice(1);
+
+  const cls = ['pending','approved','rejected'].includes(s) ? s : '';
+
+  return `<span class="${cls}">${label}</span>`;
+
+}
+
+
+async function loadHistory() {
+
+  const host = $('history');
+
+  host.textContent = 'Loading your requests...';
+
+  const table = type === 'vip'
+    ? 'vip_payment_requests'
+    : 'code_purchases';
+
+  const {data, error} = await db
+    .from(table)
+    .select('id,amount_ngn,payment_reference,status,created_at')
+    .eq('user_id', user.id)
+    .order('created_at', {ascending:false})
+    .limit(20);
+
+  if (error) {
+    host.textContent = 'Could not load request history: ' + error.message;
+    return;
+  }
+
+  host.replaceChildren();
+
+  if (!data || data.length === 0) {
+    host.textContent = 'You have not submitted any payment requests yet.';
+    return;
+  }
+
+  data.forEach(r => {
+
+    const item = document.createElement('div');
+    item.className = 'request';
+
+    const title = document.createElement('b');
+
+    title.textContent = type === 'vip'
+      ? 'VIP Membership · ₦' + Number(r.amount_ngn).toLocaleString()
+      : 'Individual Code · ₦' + Number(r.amount_ngn).toLocaleString();
+
+    const ref = document.createElement('p');
+
+    ref.textContent = 'Reference: ' + (r.payment_reference || '—');
+
+    const date = document.createElement('p');
+
+    date.textContent = 'Submitted: ' +
+      (r.created_at
+        ? new Date(r.created_at).toLocaleString('en-NG')
+        : '—');
+
+    const state = document.createElement('p');
+
+    state.textContent = 'Status: ';
+
+    const status = document.createElement('span');
+
+    const s = String(r.status || 'pending').toLowerCase();
+
+    status.textContent = s.charAt(0).toUpperCase() + s.slice(1);
+
+    if (['pending','approved','rejected'].includes(s)) {
+      status.className = s;
+    }
+
+    state.append(status);
+
+    item.append(title, ref, date, state);
+
+    host.append(item);
+
+  });
+
+}
+
+
+async function initialize() {
+
+  try {
+
+    db = window.CODEFC_DB;
+
+    if (!db) {
+      throw new Error('CODEFC database connection is unavailable. Please refresh the page.');
+    }
+
+    const {data: sessionData, error: sessionError} =
+      await db.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      location.replace('login.html');
+      return;
+    }
+
+    user = sessionData.session.user;
+
+
+    if (type === 'vip') {
+
+      $('heading').textContent = 'CODEFC VIP Membership';
+
+      $('intro').textContent =
+        'Transfer ₦15,000 for 30 days of VIP access. Membership starts only after Founder approval.';
+
+      $('price').textContent = '₦15,000 · 30 DAYS';
+
+    } else {
+
+      $('heading').textContent = 'Unlock an Individual Code';
+
+      $('intro').textContent =
+        'Choose an active premium code and transfer ₦500. Access is granted after Founder approval.';
+
+      $('price').textContent = '₦500 · PER CODE';
+
+      $('codeWrap').hidden = false;
+
+      const {data: codes, error} = await db
+        .from('codes')
+        .select('id,platform,match_title,competition,expires_at,status,access_type')
+        .eq('access_type', 'paid')
+        .eq('status', 'active')
+        .order('created_at', {ascending:false});
+
+      if (error) throw error;
+
+      const select = $('code');
+
+      select.replaceChildren(
+        new Option('Select a premium code', '')
+      );
+
+      (codes || [])
+        .filter(c =>
+          c.expires_at &&
+          new Date(c.expires_at) > new Date()
+        )
+        .forEach(c => {
+
+          select.add(new Option(
+            `${c.match_title || 'Match'} — ${c.platform || ''} (${c.competition || ''})`,
+            c.id
+          ));
+
+        });
+
+      if (select.options.length === 1) {
+
+        select.add(
+          new Option('No active paid codes available', '')
+        );
+
+      }
+
+    }
+
+
+    const {data: bank, error: bankError} = await db
+      .from('payment_settings')
+      .select('bank_name,account_name,account_number,instructions')
+      .limit(1)
+      .maybeSingle();
+
+    if (bankError) throw bankError;
+
+    if (!bank) {
+      throw new Error('Bank transfer details are not available yet. Please contact CODEFC.');
+    }
+
+    $('bank').textContent = [
+      'Bank: ' + (bank.bank_name || '—'),
+      'Account name: ' + (bank.account_name || '—'),
+      'Account number: ' + (bank.account_number || '—'),
+      bank.instructions || ''
+    ].filter(Boolean).join('\n');
+
+
+    const narration = document.createElement('p');
+
+    narration.className = 'small';
+
+    narration.textContent = type === 'vip'
+      ? 'Suggested transfer narration: CODEFC VIP'
+      : 'Suggested transfer narration: CODEFC CODE';
+
+    $('bank').append(
+      document.createElement('br'),
+      narration
+    );
+
+
+    ready = true;
+
+    setButton('Submit for verification', false);
+
+    await loadHistory();
+
+  } catch (err) {
+
+    console.error('CODEFC payment initialization error:', err);
+
+    message(
+      err.message || 'Payment page could not initialize.',
+      'error'
+    );
+
+    setButton('Payment service unavailable', true);
+
+  }
+
+}
+
+
+/* Attach the submission handler immediately. */
+
+form.addEventListener('submit', async event => {
+
+  event.preventDefault();
+
+  if (submitting || submitted) return;
+
+  if (!ready || !db || !user) {
+
+    message(
+      'Payment page is still loading. Please wait and try again.',
+      'error'
+    );
+
+    return;
+
+  }
+
+  if (!form.reportValidity()) return;
+
+  const sender = $('sender').value.trim();
+
+  const reference = $('ref').value.trim();
+
+  if (!sender || !reference) {
+
+    message(
+      'Please complete both required fields.',
+      'error'
+    );
+
+    return;
+
+  }
+
+  submitting = true;
+
+  setButton('Submitting...', true);
+
+  message('Submitting your payment request...', '');
+
+
+  try {
+
+    if (type === 'vip') {
+
+      const {data: pending, error: checkError} = await db
+        .from('vip_payment_requests')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .limit(1);
+
+      if (checkError) throw checkError;
+
+      if (pending && pending.length) {
+
+        throw new Error(
+          'You already have a pending VIP request. Please wait for Founder verification.'
+        );
+
+      }
+
+
+      const {error: insertError} = await db
+        .from('vip_payment_requests')
+        .insert({
+
+          user_id: user.id,
+          amount_ngn: 15000,
+          sender_name: sender,
+          payment_reference: reference,
+          status: 'pending'
+
+        });
+
+      if (insertError) throw insertError;
+
+
+    } else {
+
+      const codeId = $('code').value;
+
+      if (!codeId) {
+        throw new Error('Please select a premium code.');
+      }
+
+      const {data: old, error: checkError} = await db
+        .from('code_purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('code_id', codeId)
+        .in('status', ['pending','approved'])
+        .limit(1);
+
+      if (checkError) throw checkError;
+
+      if (old && old.length) {
+
+        throw new Error(
+          'You already have a pending or approved purchase for this code.'
+        );
+
+      }
+
+
+      const {error: insertError} = await db
+        .from('code_purchases')
+        .insert({
+
+          code_id: codeId,
+          user_id: user.id,
+          amount_ngn: 500,
+          payment_reference: reference,
+          status: 'pending'
+
+        });
+
+      if (insertError) throw insertError;
+
+    }
+
+
+    submitted = true;
+
+    message(
+      'REQUEST SUBMITTED SUCCESSFULLY!\n\nYour payment request is now awaiting Founder verification. Your access will remain locked until payment is confirmed.',
+      'success'
+    );
+
+    setButton('Submitted ✓', true);
+
+    form.reset();
+
+    await loadHistory();
+
+
+  } catch (err) {
+
+    console.error('CODEFC payment submission error:', err);
+
+    message(
+      'Submission failed: ' +
+      (err.message || 'Please try again.'),
+      'error'
+    );
+
+    setButton('Try again', false);
+
+
+  } finally {
+
+    submitting = false;
+
+  }
+
+});
+
+
+initialize();
+
+})();
+
+</script>
+
+</body>
+</html>
