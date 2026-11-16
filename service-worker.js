@@ -1,7 +1,10 @@
-const CACHE_NAME = "codefc-pwa-v1";
+const CACHE_NAME = "codefc-pwa-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./payment.html",
+  "./founder-payments.html",
+  "./dashboard.html",
   "./style.css",
   "./script.js",
   "./manifest.json",
@@ -49,7 +52,10 @@ self.addEventListener("fetch", event => {
       fetch(request)
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html",
+  "./payment.html",
+  "./founder-payments.html",
+  "./dashboard.html", copy));
           return response;
         })
         .catch(async () => {
