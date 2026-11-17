@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080B08">
+<title>Founder Control Center | CODEFC</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #080B08;
+  color: #F5F5F5;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 5%;
+  border-bottom: 1px solid #263126;
+  position: sticky;
+  top: 0;
+  background: #080B08;
+  z-index: 10;
+}
+
+.logo {
+  color: #39FF14;
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.founder-label {
+  color: #39FF14;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.logout {
+  background: transparent;
+  border: 1px solid #394339;
+  color: white;
+  padding: 9px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+main {
+  width: 100%;
+  max-width: 1150px;
+  margin: auto;
+  padding: 30px 5%;
+}
+
+.welcome {
+  margin-bottom: 25px;
+}
+
+.welcome h1 {
+  font-size: 27px;
+  margin-bottom: 8px;
+}
+
+.muted {
+  color: #929B92;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.section-title {
+  font-size: 17px;
+  margin: 28px 0 15px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 13px;
+}
+
+.card {
+  background: #111811;
+  border: 1px solid #263126;
+  border-radius: 12px;
+  padding: 19px;
+  min-width: 0;
+}
+
+.stat-label {
+  color: #A0AAA0;
+  font-size: 12px;
+}
+
+.stat-number {
+  color: #39FF14;
+  font-size: 29px;
+  font-weight: bold;
+  margin: 13px 0 6px;
+}
+
+.stat-note {
+  color: #788478;
+  font-size: 11px;
+}
+
+.section-description {
+  margin-top: -7px;
+  margin-bottom: 15px;
+}
+
+.publish-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 13px;
+}
+
+.publish-card {
+  border-radius: 12px;
+  padding: 19px;
+  min-height: 155px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.free-card {
+  background: #12351D;
+  border: 1px solid #286B36;
+}
+
+.vip-card {
+  background: #26183D;
+  border: 1px solid #69449A;
+}
+
+.paid-card {
+  background: #152B45;
+  border: 1px solid #315C88;
+}
+
+.publish-card h3 {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+.publish-card p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #D0D8D0;
+}
+
+.publish-tag {
+  font-size: 11px;
+  font-weight: bold;
+  margin-top: 18px;
+}
+
+.free-card .publish-tag { color: #39FF14; }
+.vip-card .publish-tag { color: #C49AFF; }
+.paid-card .publish-tag { color: #82B9FF; }
+
+.publish-status {
+  font-size: 11px;
+  color: #B8C2B8;
+  margin-top: 7px;
+}
+
+.management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.management-link {
+  display: block;
+  text-decoration: none;
+  color: white;
+  background: #111811;
+  border: 1px solid #263126;
+  padding: 17px;
+  border-radius: 10px;
+  transition: .2s;
+}
+
+.management-link:hover {
+  border-color: #39FF14;
+}
+
+.management-link strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 7px;
+}
+
+.management-link span {
+  color: #929B92;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.settings-card {
+  margin-top: 13px;
+}
+
+.settings-card h3 {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.status-message {
+  color: #929B92;
+  font-size: 12px;
+  margin-top: 15px;
+  line-height: 1.6;
+}
+
+.refresh-btn {
+  background: #172217;
+  border: 1px solid #345034;
+  color: #39FF14;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+#accessMessage {
+  text-align: center;
+  padding: 100px 20px;
+  color: #39FF14;
+  font-size: 15px;
+}
+
+#dashboardContent {
+  display: none;
+}
+
+footer {
+  text-align: center;
+  padding: 30px 15px;
+  color: #697369;
+  font-size: 11px;
+}
+
+@media(max-width: 650px) {
+  main {
+    padding: 25px 4%;
+  }
+
+  .publish-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .publish-card {
+    min-height: 130px;
+  }
+
+  .welcome h1 {
+    font-size: 23px;
+  }
+}
+
+@media(max-width: 380px) {
+  .stats {
+    gap: 9px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .stat-number {
+    font-size: 24px;
+  }
+
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .founder-label {
+    display: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="accessMessage">
+  Verifying Founder access...
+</div>
+
+<div id="dashboardContent">
+
+<header>
+  <div class="logo">CODEFC</div>
+
+  <div class="header-right">
+    <span class="founder-label">FOUNDER ACCESS</span>
+    <button class="logout" id="logoutBtn">Log out</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="welcome">
+    <h1>FOUNDER CONTROL CENTER 🔐</h1>
+    <p class="muted">
+      Manage your CODEFC platform, users, payments and booking codes.
+    </p>
+  </section>
+
+  <h2 class="section-title">Platform Overview</h2>
+
+  <section class="stats">
+
+    <div class="card">
+      <div class="stat-label">TOTAL USERS</div>
+      <div class="stat-number" id="totalUsers">—</div>
+      <div class="stat-note">Registered CODEFC users</div>
+    </div>
+
+    <div class="card">
+      <div class="stat-label">ACTIVE USERS</div>
+      <div class="stat-number" id="activeUsers">—</div>
+      <div class="stat-note">Active within the last 7 days</div>
+    </div>
+
+    <div class="card">
+      <div class="stat-label">VIP MEMBERS</div>
+      <div class="stat-number" id="vipMembers">—</div>
+      <div class="stat-note">Currently active memberships</div>
+    </div>
+
+    <div class="card">
+      <div class="stat-label">REVENUE TRACKING</div>
+      <div class="stat-number" style="font-size:20px;">In setup</div>
+      <div class="stat-note">Verified payments and advertising records</div>
+    </div>
+
+  </section>
+
+  <button class="refresh-btn" id="refreshStats">
+    ↻ Refresh Statistics
+  </button>
+
+  <h2 class="section-title">Publish Booking Codes</h2>
+
+  <p class="muted section-description">
+    Each category will have its own publishing form.
+    Booking codes must have an expiry date and time.
+  </p>
+
+  <section class="publish-grid">
+
+    <div class="publish-card free-card">
+      <div>
+        <h3>FREE CODES</h3>
+        <p>Publish free booking codes for all users.</p>
+      </div>
+      <div>
+        <div class="publish-tag">FREE ACCESS</div>
+        <div class="publish-status">Publishing form: Next step</div>
+      </div>
+    </div>
+
+    <div class="publish-card vip-card">
+      <div>
+        <h3>VIP CODES</h3>
+        <p>Publish exclusive booking codes for active VIP members.</p>
+      </div>
+      <div>
+        <div class="publish-tag">VIP ACCESS</div>
+        <div class="publish-status">Publishing form: Next step</div>
+      </div>
+    </div>
+
+    <div class="publish-card paid-card">
+      <div>
+        <h3>INDIVIDUAL PAID CODES</h3>
+        <p>Publish booking codes users unlock individually for ₦500.</p>
+      </div>
+      <div>
+        <div class="publish-tag">₦500 PER CODE</div>
+        <div class="publish-status">Publishing form: Next step</div>
+      </div>
+    </div>
+
+  </section>
+
+  <h2 class="section-title">Management</h2>
+
+  <section class="management-grid">
+
+    <a class="management-link" href="founder-payments.html">
+      <strong>Payment Verification</strong>
+      <span>Review VIP and individual code payment requests.</span>
+    </a>
+
+    <div class="management-link">
+      <strong>Users</strong>
+      <span>User management will be connected next.</span>
+    </div>
+
+    <div class="management-link">
+      <strong>Bookings</strong>
+      <span>Manage published codes and their status.</span>
+    </div>
+
+    <div class="management-link">
+      <strong>VIP Memberships</strong>
+      <span>Review and manage active memberships.</span>
+    </div>
+
+    <div class="management-link">
+      <strong>Advertising</strong>
+      <span>Manage advertisers, campaigns and payments.</span>
+    </div>
+
+    <div class="management-link">
+      <strong>Earnings & Analytics</strong>
+      <span>Review verified revenue and platform performance.</span>
+    </div>
+
+  </section>
+
+  <h2 class="section-title">Payment Settings</h2>
+
+  <section class="card settings-card">
+    <h3>Access Bank & Paystack</h3>
+    <p class="muted">
+      Manage your bank transfer details, payment instructions
+      and available payment methods.
+    </p>
+    <p class="status-message">
+      Payment settings connection will be added in the next development step.
+    </p>
+  </section>
+
+  <p class="status-message" id="statsMessage"></p>
+
+</main>
+
+<footer>
+  © 2026 CODEFC. Founder Control Center.
+  <br>
+  Powered by fosky.j
+</footer>
+
+</div>
+
+<script>
+const db = window.CODEFC_DB;
+
+const accessMessage = document.getElementById("accessMessage");
+const dashboardContent = document.getElementById("dashboardContent");
+
+function showAccessError(message) {
+  accessMessage.textContent = message;
+  accessMessage.style.color = "#FF7777";
+}
+
+async function loadFounderStats() {
+  const message = document.getElementById("statsMessage");
+  const refreshButton = document.getElementById("refreshStats");
+
+  refreshButton.disabled = true;
+  refreshButton.textContent = "Refreshing...";
+
+  message.textContent = "";
+
+  try {
+    const { data, error } = await db.rpc("get_founder_stats");
+
+    if (error) throw error;
+
+    const stats = Array.isArray(data) ? data[0] : data;
+
+    if (!stats) {
+      throw new Error("No statistics were returned.");
+    }
+
+    document.getElementById("totalUsers").textContent =
+      Number(stats.total_users).toLocaleString();
+
+    document.getElementById("activeUsers").textContent =
+      Number(stats.active_users).toLocaleString();
+
+    document.getElementById("vipMembers").textContent =
+      Number(stats.vip_members).toLocaleString();
+
+  } catch (error) {
+    console.error("Founder statistics error:", error);
+    message.textContent =
+      "Unable to load statistics: " + error.message;
+
+  } finally {
+    refreshButton.disabled = false;
+    refreshButton.textContent = "↻ Refresh Statistics";
+  }
+}
+
+async function initializeFounderDashboard() {
+  if (!db) {
+    showAccessError("CODEFC database connection unavailable.");
+    return;
+  }
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await db.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const session = sessionData.session;
+
+    if (!session) {
+      window.location.replace("login.html");
+      return;
+    }
+
+    const { data: profile, error: profileError } =
+      await db
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!profile || profile.is_admin !== true) {
+      await db.auth.signOut();
+      window.location.replace("login.html");
+      return;
+    }
+
+    accessMessage.style.display = "none";
+    dashboardContent.style.display = "block";
+
+    await loadFounderStats();
+
+  } catch (error) {
+    console.error("Founder access error:", error);
+    showAccessError(
+      "Unable to verify Founder access. Please refresh and try again."
+    );
+  }
+}
+
+document.getElementById("refreshStats").addEventListener(
+  "click",
+  loadFounderStats
+);
+
+document.getElementById("logoutBtn").addEventListener(
+  "click",
+  async () => {
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+      alert("Unable to log out: " + error.message);
+      return;
+    }
+
+    window.location.replace("login.html");
+  }
+);
+
+initializeFounderDashboard();
+</script>
+
+</body>
+  </html>
+          
