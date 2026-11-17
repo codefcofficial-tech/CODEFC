@@ -286,3 +286,33 @@ if (loginForm) {
     });
   }
 }
+// ===================================
+// CODEFC USER ACTIVITY TRACKING
+// ===================================
+
+(async function recordUserActivity() {
+  try {
+    const db = window.CODEFC_DB;
+
+    if (!db) return;
+
+    const { data, error } = await db.auth.getSession();
+
+    if (error) throw error;
+
+    if (!data.session) return;
+
+    const { error: activityError } =
+      await db.rpc("record_my_activity");
+
+    if (activityError) {
+      console.error(
+        "CODEFC activity tracking failed:",
+        activityError
+      );
+    }
+
+  } catch (error) {
+    console.error("Activity tracking error:", error);
+  }
+})();
