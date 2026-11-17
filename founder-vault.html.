@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080B08">
+<title>Founder Vault | CODEFC</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:#080B08;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+.vault{
+  width:100%;
+  max-width:420px;
+  padding:30px 24px;
+  border:1px solid #263326;
+  border-radius:18px;
+  background:#0d120d;
+  text-align:center;
+  box-shadow:0 15px 50px #0008;
+}
+.logo{
+  color:#39FF14;
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:3px;
+}
+.lock{
+  font-size:48px;
+  margin:22px 0 10px;
+}
+h1{font-size:23px;margin:8px 0}
+.subtitle{
+  color:#9ba69b;
+  font-size:14px;
+  line-height:1.6;
+  margin-bottom:25px;
+}
+input{
+  width:100%;
+  padding:15px;
+  margin:8px 0;
+  border:1px solid #344334;
+  border-radius:9px;
+  background:#080B08;
+  color:#fff;
+  font-size:15px;
+  outline:none;
+}
+input:focus{border-color:#39FF14}
+button{
+  width:100%;
+  padding:15px;
+  margin-top:14px;
+  border:0;
+  border-radius:9px;
+  background:#39FF14;
+  color:#061006;
+  font-weight:800;
+  font-size:15px;
+  cursor:pointer;
+}
+button:disabled{opacity:.6;cursor:not-allowed}
+.secondary{
+  background:#202820;
+  color:#fff;
+}
+#message{
+  margin-top:18px;
+  font-size:14px;
+  line-height:1.5;
+  color:#ff7777;
+}
+.success{color:#39FF14!important}
+.hidden{display:none}
+.footer{
+  margin-top:25px;
+  color:#647064;
+  font-size:11px;
+}
+a{color:#39FF14;text-decoration:none}
+</style>
+</head>
+
+<body>
+
+<div class="vault">
+  <div class="logo">CODEFC</div>
+  <div class="lock">🔐</div>
+
+  <h1>FOUNDER VAULT</h1>
+  <p class="subtitle">
+    Private Founder access.<br>
+    Sign in with your authorized CODEFC Founder account.
+  </p>
+
+  <form id="vaultForm">
+    <input
+      type="email"
+      id="email"
+      placeholder="Founder email address"
+      autocomplete="username"
+      required
+    >
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Founder password"
+      autocomplete="current-password"
+      required
+    >
+
+    <button type="submit" id="loginButton">
+      UNLOCK FOUNDER VAULT
+    </button>
+  </form>
+
+  <div id="accessPanel" class="hidden">
+    <p class="success">Founder access verified.</p>
+    <button id="openDashboard">
+      OPEN FOUNDER DASHBOARD
+    </button>
+  </div>
+
+  <button id="switchAccount" class="secondary hidden">
+    USE ANOTHER ACCOUNT
+  </button>
+
+  <div id="message"></div>
+
+  <div class="footer">
+    CODEFC PRIVATE ADMINISTRATION SYSTEM<br>
+    <a href="index.html">Return to CODEFC</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+const db = window.CODEFC_DB;
+
+const form = document.getElementById("vaultForm");
+const message = document.getElementById("message");
+const loginButton = document.getElementById("loginButton");
+const accessPanel = document.getElementById("accessPanel");
+const switchAccount = document.getElementById("switchAccount");
+
+let founderVerified = false;
+
+function showMessage(text, success = false) {
+  message.textContent = text;
+  message.className = success ? "success" : "";
+}
+
+async function checkFounder(userId) {
+  const { data, error } = await db
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data && data.is_admin === true;
+}
+
+function showFounderAccess() {
+  founderVerified = true;
+  form.classList.add("hidden");
+  accessPanel.classList.remove("hidden");
+  switchAccount.classList.remove("hidden");
+  showMessage("Your Founder account has been verified.", true);
+}
+
+function showLogin() {
+  founderVerified = false;
+  form.classList.remove("hidden");
+  accessPanel.classList.add("hidden");
+  switchAccount.classList.add("hidden");
+}
+
+async function checkExistingSession() {
+  if (!db) {
+    showMessage("CODEFC database connection failed. Check supabase.js.");
+    return;
+  }
+
+  try {
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+
+    if (!data.session) {
+      showLogin();
+      return;
+    }
+
+    const allowed = await checkFounder(data.session.user.id);
+
+    if (allowed) {
+      showFounderAccess();
+    } else {
+      showLogin();
+      form.classList.add("hidden");
+      switchAccount.classList.remove("hidden");
+      showMessage("This account does not have Founder permission.");
+    }
+  } catch (error) {
+    showMessage(error.message);
+  }
+}
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (!db) {
+    showMessage("Database connection is unavailable.");
+    return;
+  }
+
+  loginButton.disabled = true;
+  loginButton.textContent = "VERIFYING...";
+  showMessage("");
+
+  try {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    const allowed = await checkFounder(data.user.id);
+
+    if (!allowed) {
+      showLogin();
+      form.classList.add("hidden");
+      switchAccount.classList.remove("hidden");
+      throw new Error("Access denied. This account is not a CODEFC Founder account.");
+    }
+
+    showFounderAccess();
+
+  } catch (error) {
+    showMessage(error.message);
+  } finally {
+    loginButton.disabled = false;
+    loginButton.textContent = "UNLOCK FOUNDER VAULT";
+  }
+});
+
+document.getElementById("openDashboard").addEventListener("click", async function() {
+  try {
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+
+    if (!data.session) throw new Error("Your session has expired. Sign in again.");
+
+    const allowed = await checkFounder(data.session.user.id);
+
+    if (!allowed) throw new Error("Founder permission could not be verified.");
+
+    window.location.href = "admin-dashboard.html";
+  } catch (error) {
+    showMessage(error.message);
+  }
+});
+
+switchAccount.addEventListener("click", async function() {
+  try {
+    await db.auth.signOut();
+    document.getElementById("password").value = "";
+    showLogin();
+    showMessage("You can now sign in with your Founder account.");
+  } catch (error) {
+    showMessage(error.message);
+  }
+});
+
+checkExistingSession();
+</script>
+
+</body>
+</html>
