@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,447 +10,100 @@
 <script src="supabase.js"></script>
 
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080B08;color:#F5F5F5;font-family:Arial,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 5%;border-bottom:1px solid #263126;position:sticky;top:0;background:#080B08;z-index:10}
+.logo{color:#39FF14;font-size:23px;font-weight:900;letter-spacing:1px}
+.header-right{display:flex;align-items:center;gap:12px}
+.founder-label{color:#39FF14;font-size:11px;font-weight:bold}
+.logout{background:transparent;border:1px solid #394339;color:white;padding:9px 13px;border-radius:7px;cursor:pointer}
+main{width:100%;max-width:1150px;margin:auto;padding:30px 5%}
+.welcome{margin-bottom:25px}
+.welcome h1{font-size:27px;margin-bottom:8px}
+.muted{color:#929B92;font-size:13px;line-height:1.6}
+.section-title{font-size:17px;margin:28px 0 15px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+.card{background:#111811;border:1px solid #263126;border-radius:12px;padding:19px;min-width:0}
+.stat-label{color:#A0AAA0;font-size:12px}
+.stat-number{color:#39FF14;font-size:29px;font-weight:bold;margin:13px 0 6px}
+.stat-note{color:#788478;font-size:11px}
+.section-description{margin-top:-7px;margin-bottom:15px}
+.publish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.publish-card{border-radius:12px;padding:19px;min-height:155px;display:flex;flex-direction:column;justify-content:space-between}
+.free-card{background:#12351D;border:1px solid #286B36;cursor:pointer;color:white;text-align:left;font-family:inherit;width:100%}
+.free-card:hover{border-color:#39FF14}
+.vip-card{background:#26183D;border:1px solid #69449A}
+.paid-card{background:#152B45;border:1px solid #315C88;color:white;text-align:left;font-family:inherit;width:100%;cursor:pointer}
+.paid-card:hover{border-color:#82B9FF}
+.publish-card h3{font-size:15px;margin-bottom:10px}
+.publish-card p{font-size:12px;line-height:1.5;color:#D0D8D0}
+.publish-tag{font-size:11px;font-weight:bold;margin-top:18px}
+.free-card .publish-tag{color:#39FF14}
+.vip-card .publish-tag{color:#C49AFF}
+.paid-card .publish-tag{color:#82B9FF}
+.publish-status{font-size:11px;color:#B8C2B8;margin-top:7px}
+.management-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.management-link{display:block;text-decoration:none;color:white;background:#111811;border:1px solid #263126;padding:17px;border-radius:10px;transition:.2s}
+.management-link:hover{border-color:#39FF14}
+.management-link strong{display:block;font-size:14px;margin-bottom:7px}
+.management-link span{color:#929B92;font-size:11px;line-height:1.5}
+.settings-card{margin-top:13px}
+.settings-card h3{font-size:15px;margin-bottom:8px}
+.status-message{color:#929B92;font-size:12px;margin-top:15px;line-height:1.6}
+.refresh-btn{background:#172217;border:1px solid #345034;color:#39FF14;padding:10px 14px;border-radius:7px;font-weight:bold;cursor:pointer;margin-top:15px}
+#accessMessage{text-align:center;padding:100px 20px;color:#39FF14;font-size:15px}
+#dashboardContent{display:none}
+
+/* PUBLISHING FORMS */
+.publish-panel{display:none;margin-top:18px;border-radius:12px;padding:20px}
+#freePublishPanel{background:#101A11;border:1px solid #286B36}
+#paidPublishPanel{background:#101827;border:1px solid #315C88}
+.publish-panel h2{font-size:19px;margin-bottom:8px}
+#freePublishPanel h2{color:#39FF14}
+#paidPublishPanel h2{color:#82B9FF}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:20px}
+.form-group{min-width:0}
+.form-group.full{grid-column:1/-1}
+.form-group label{display:block;font-size:12px;color:#C6D0C6;margin-bottom:8px}
+.form-group input,.form-group select{width:100%;background:#080B08;border:1px solid #394839;border-radius:7px;color:white;padding:13px;font-size:14px;outline:none;min-width:0}
+.form-group input:focus,.form-group select:focus{border-color:#39FF14}
+#paidPublishPanel .form-group input:focus,#paidPublishPanel .form-group select:focus{border-color:#82B9FF}
+.form-group input::placeholder{color:#697369}
+.form-group input[type="datetime-local"]{color-scheme:dark}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.publish-submit{background:#39FF14;border:none;color:#080B08;padding:13px 19px;border-radius:7px;font-weight:bold;cursor:pointer}
+.paid-submit{background:#82B9FF;border:none;color:#080B08;padding:13px 19px;border-radius:7px;font-weight:bold;cursor:pointer}
+.publish-submit:disabled,.paid-submit:disabled{opacity:.5;cursor:not-allowed}
+.close-form{background:transparent;border:1px solid #394839;color:white;padding:13px 19px;border-radius:7px;cursor:pointer}
+.form-message{display:none;padding:12px;margin-top:16px;border-radius:7px;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.form-message.success{display:block;background:#12351D;border:1px solid #286B36;color:#39FF14}
+.form-message.error{display:block;background:#351717;border:1px solid #793535;color:#FF9999}
+footer{text-align:center;padding:30px 15px;color:#697369;font-size:11px}
+
+@media(max-width:650px){
+main{padding:25px 4%}
+.publish-grid{grid-template-columns:1fr}
+.publish-card{min-height:130px}
+.welcome h1{font-size:23px}
+.form-grid{grid-template-columns:1fr}
+.form-group.full{grid-column:auto}
 }
-
-body {
-  background: #080B08;
-  color: #F5F5F5;
-  font-family: Arial, sans-serif;
-  min-height: 100vh;
-}
-
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 5%;
-  border-bottom: 1px solid #263126;
-  position: sticky;
-  top: 0;
-  background: #080B08;
-  z-index: 10;
-}
-
-.logo {
-  color: #39FF14;
-  font-size: 23px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.founder-label {
-  color: #39FF14;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.logout {
-  background: transparent;
-  border: 1px solid #394339;
-  color: white;
-  padding: 9px 13px;
-  border-radius: 7px;
-  cursor: pointer;
-}
-
-main {
-  width: 100%;
-  max-width: 1150px;
-  margin: auto;
-  padding: 30px 5%;
-}
-
-.welcome {
-  margin-bottom: 25px;
-}
-
-.welcome h1 {
-  font-size: 27px;
-  margin-bottom: 8px;
-}
-
-.muted {
-  color: #929B92;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.section-title {
-  font-size: 17px;
-  margin: 28px 0 15px;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 13px;
-}
-
-.card {
-  background: #111811;
-  border: 1px solid #263126;
-  border-radius: 12px;
-  padding: 19px;
-  min-width: 0;
-}
-
-.stat-label {
-  color: #A0AAA0;
-  font-size: 12px;
-}
-
-.stat-number {
-  color: #39FF14;
-  font-size: 29px;
-  font-weight: bold;
-  margin: 13px 0 6px;
-}
-
-.stat-note {
-  color: #788478;
-  font-size: 11px;
-}
-
-.section-description {
-  margin-top: -7px;
-  margin-bottom: 15px;
-}
-
-.publish-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 13px;
-}
-
-.publish-card {
-  border-radius: 12px;
-  padding: 19px;
-  min-height: 155px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.free-card {
-  background: #12351D;
-  border: 1px solid #286B36;
-  cursor: pointer;
-  color: white;
-  text-align: left;
-  font-family: inherit;
-  width: 100%;
-}
-
-.free-card:hover {
-  border-color: #39FF14;
-}
-
-.vip-card {
-  background: #26183D;
-  border: 1px solid #69449A;
-}
-
-.paid-card {
-  background: #152B45;
-  border: 1px solid #315C88;
-}
-
-.publish-card h3 {
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-
-.publish-card p {
-  font-size: 12px;
-  line-height: 1.5;
-  color: #D0D8D0;
-}
-
-.publish-tag {
-  font-size: 11px;
-  font-weight: bold;
-  margin-top: 18px;
-}
-
-.free-card .publish-tag { color: #39FF14; }
-.vip-card .publish-tag { color: #C49AFF; }
-.paid-card .publish-tag { color: #82B9FF; }
-
-.publish-status {
-  font-size: 11px;
-  color: #B8C2B8;
-  margin-top: 7px;
-}
-
-.management-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.management-link {
-  display: block;
-  text-decoration: none;
-  color: white;
-  background: #111811;
-  border: 1px solid #263126;
-  padding: 17px;
-  border-radius: 10px;
-  transition: .2s;
-}
-
-.management-link:hover {
-  border-color: #39FF14;
-}
-
-.management-link strong {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 7px;
-}
-
-.management-link span {
-  color: #929B92;
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-.settings-card {
-  margin-top: 13px;
-}
-
-.settings-card h3 {
-  font-size: 15px;
-  margin-bottom: 8px;
-}
-
-.status-message {
-  color: #929B92;
-  font-size: 12px;
-  margin-top: 15px;
-  line-height: 1.6;
-}
-
-.refresh-btn {
-  background: #172217;
-  border: 1px solid #345034;
-  color: #39FF14;
-  padding: 10px 14px;
-  border-radius: 7px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 15px;
-}
-
-#accessMessage {
-  text-align: center;
-  padding: 100px 20px;
-  color: #39FF14;
-  font-size: 15px;
-}
-
-#dashboardContent {
-  display: none;
-}
-
-/* FREE CODE FORM */
-
-#freePublishPanel {
-  display: none;
-  margin-top: 18px;
-  background: #101A11;
-  border: 1px solid #286B36;
-  border-radius: 12px;
-  padding: 20px;
-}
-
-#freePublishPanel h2 {
-  color: #39FF14;
-  font-size: 19px;
-  margin-bottom: 8px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.form-group {
-  min-width: 0;
-}
-
-.form-group.full {
-  grid-column: 1 / -1;
-}
-
-.form-group label {
-  display: block;
-  font-size: 12px;
-  color: #C6D0C6;
-  margin-bottom: 8px;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  background: #080B08;
-  border: 1px solid #394839;
-  border-radius: 7px;
-  color: white;
-  padding: 13px;
-  font-size: 14px;
-  outline: none;
-  min-width: 0;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  border-color: #39FF14;
-}
-
-.form-group input::placeholder {
-  color: #697369;
-}
-
-.form-group input[type="datetime-local"] {
-  color-scheme: dark;
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-.publish-submit {
-  background: #39FF14;
-  border: none;
-  color: #080B08;
-  padding: 13px 19px;
-  border-radius: 7px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.publish-submit:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.close-form {
-  background: transparent;
-  border: 1px solid #394839;
-  color: white;
-  padding: 13px 19px;
-  border-radius: 7px;
-  cursor: pointer;
-}
-
-#freeFormMessage {
-  display: none;
-  padding: 12px;
-  margin-top: 16px;
-  border-radius: 7px;
-  font-size: 12px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-#freeFormMessage.success {
-  display: block;
-  background: #12351D;
-  border: 1px solid #286B36;
-  color: #39FF14;
-}
-
-#freeFormMessage.error {
-  display: block;
-  background: #351717;
-  border: 1px solid #793535;
-  color: #FF9999;
-}
-
-footer {
-  text-align: center;
-  padding: 30px 15px;
-  color: #697369;
-  font-size: 11px;
-}
-
-@media(max-width: 650px) {
-  main {
-    padding: 25px 4%;
-  }
-
-  .publish-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .publish-card {
-    min-height: 130px;
-  }
-
-  .welcome h1 {
-    font-size: 23px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-group.full {
-    grid-column: auto;
-  }
-}
-
-@media(max-width: 380px) {
-  .stats {
-    gap: 9px;
-  }
-
-  .card {
-    padding: 14px;
-  }
-
-  .stat-number {
-    font-size: 24px;
-  }
-
-  .management-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .founder-label {
-    display: none;
-  }
+@media(max-width:380px){
+.stats{gap:9px}
+.card{padding:14px}
+.stat-number{font-size:24px}
+.management-grid{grid-template-columns:1fr}
+.founder-label{display:none}
 }
 </style>
 </head>
 
 <body>
-
-<div id="accessMessage">
-  Verifying Founder access...
-</div>
+<div id="accessMessage">Verifying Founder access...</div>
 
 <div id="dashboardContent">
-
 <header>
   <div class="logo">CODEFC</div>
-
   <div class="header-right">
     <span class="founder-label">FOUNDER ACCESS</span>
     <button class="logout" id="logoutBtn">Log out</button>
@@ -459,260 +111,235 @@ footer {
 </header>
 
 <main>
+<section class="welcome">
+  <h1>FOUNDER CONTROL CENTER 🔐</h1>
+  <p class="muted">Manage your CODEFC platform, users, payments and booking codes.</p>
+</section>
 
-  <section class="welcome">
-    <h1>FOUNDER CONTROL CENTER 🔐</h1>
-    <p class="muted">
-      Manage your CODEFC platform, users, payments and booking codes.
-    </p>
-  </section>
+<h2 class="section-title">Platform Overview</h2>
 
-  <h2 class="section-title">Platform Overview</h2>
+<section class="stats">
+  <div class="card">
+    <div class="stat-label">TOTAL USERS</div>
+    <div class="stat-number" id="totalUsers">—</div>
+    <div class="stat-note">Registered CODEFC users</div>
+  </div>
+  <div class="card">
+    <div class="stat-label">ACTIVE USERS</div>
+    <div class="stat-number" id="activeUsers">—</div>
+    <div class="stat-note">Active within the last 7 days</div>
+  </div>
+  <div class="card">
+    <div class="stat-label">VIP MEMBERS</div>
+    <div class="stat-number" id="vipMembers">—</div>
+    <div class="stat-note">Currently active memberships</div>
+  </div>
+  <div class="card">
+    <div class="stat-label">REVENUE TRACKING</div>
+    <div class="stat-number" style="font-size:20px">In setup</div>
+    <div class="stat-note">Verified payments and advertising records</div>
+  </div>
+</section>
 
-  <section class="stats">
+<button class="refresh-btn" id="refreshStats">↻ Refresh Statistics</button>
 
-    <div class="card">
-      <div class="stat-label">TOTAL USERS</div>
-      <div class="stat-number" id="totalUsers">—</div>
-      <div class="stat-note">Registered CODEFC users</div>
+<h2 class="section-title">Publish Booking Codes</h2>
+<p class="muted section-description">
+Each category has its own publishing form. Booking codes must have an expiry date and time.
+</p>
+
+<section class="publish-grid">
+  <button class="publish-card free-card" id="openFreeForm" type="button">
+    <div>
+      <h3>FREE CODES</h3>
+      <p>Publish free booking codes for all users.</p>
     </div>
-
-    <div class="card">
-      <div class="stat-label">ACTIVE USERS</div>
-      <div class="stat-number" id="activeUsers">—</div>
-      <div class="stat-note">Active within the last 7 days</div>
+    <div>
+      <div class="publish-tag">FREE ACCESS</div>
+      <div class="publish-status">Tap to publish a FREE code</div>
     </div>
-
-    <div class="card">
-      <div class="stat-label">VIP MEMBERS</div>
-      <div class="stat-number" id="vipMembers">—</div>
-      <div class="stat-note">Currently active memberships</div>
-    </div>
-
-    <div class="card">
-      <div class="stat-label">REVENUE TRACKING</div>
-      <div class="stat-number" style="font-size:20px;">In setup</div>
-      <div class="stat-note">Verified payments and advertising records</div>
-    </div>
-
-  </section>
-
-  <button class="refresh-btn" id="refreshStats">
-    ↻ Refresh Statistics
   </button>
 
-  <h2 class="section-title">Publish Booking Codes</h2>
+  <div class="publish-card vip-card">
+    <div>
+      <h3>VIP CODES</h3>
+      <p>Publish exclusive booking codes for active VIP members.</p>
+    </div>
+    <div>
+      <div class="publish-tag">VIP ACCESS</div>
+      <div class="publish-status">Publishing form: Next step</div>
+    </div>
+  </div>
 
-  <p class="muted section-description">
-    Each category has its own publishing form.
-    Booking codes must have an expiry date and time.
+  <button class="publish-card paid-card" id="openPaidForm" type="button">
+    <div>
+      <h3>INDIVIDUAL PAID CODES</h3>
+      <p>Publish booking codes users unlock individually for ₦500.</p>
+    </div>
+    <div>
+      <div class="publish-tag">₦500 PER CODE</div>
+      <div class="publish-status">Tap to publish an Individual code</div>
+    </div>
+  </button>
+</section>
+
+<!-- FREE PUBLISHING FORM -->
+<section id="freePublishPanel" class="publish-panel">
+  <h2>Publish FREE Booking Code</h2>
+  <p class="muted">
+    This code will be available to all users until its expiry.
+    Publishing a replacement will retire the previous active FREE code.
   </p>
 
-  <section class="publish-grid">
+  <form id="freePublishForm">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="freePlatform">Betting Platform</label>
+        <select id="freePlatform" required>
+          <option value="">Select platform</option>
+          <option value="SportyBet">SportyBet</option>
+          <option value="1xBet">1xBet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="freeOdds">Betting Odds</label>
+        <input type="number" id="freeOdds" placeholder="Example: 2.50" min="0.01" step="0.01" required>
+      </div>
+      <div class="form-group full">
+        <label for="freeMatchTitle">Match Title</label>
+        <input type="text" id="freeMatchTitle" placeholder="Example: Arsenal vs Chelsea" required>
+      </div>
+      <div class="form-group full">
+        <label for="freeCompetition">Competition</label>
+        <input type="text" id="freeCompetition" placeholder="Example: Premier League" required>
+      </div>
+      <div class="form-group full">
+        <label for="freeBookingCode">Booking Code</label>
+        <input type="text" id="freeBookingCode" placeholder="Enter the actual booking code" autocomplete="off" required>
+      </div>
+      <div class="form-group">
+        <label for="freeMatchStart">Match Start Date & Time</label>
+        <input type="datetime-local" id="freeMatchStart" required>
+      </div>
+      <div class="form-group">
+        <label for="freeExpiry">Code Expiry Date & Time</label>
+        <input type="datetime-local" id="freeExpiry" required>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="publish-submit" id="publishFreeBtn">Publish FREE Code</button>
+      <button type="button" class="close-form" id="closeFreeForm">Close Form</button>
+    </div>
+    <div id="freeFormMessage" class="form-message"></div>
+  </form>
+</section>
 
-    <button class="publish-card free-card" id="openFreeForm" type="button">
-      <div>
-        <h3>FREE CODES</h3>
-        <p>Publish free booking codes for all users.</p>
-      </div>
-      <div>
-        <div class="publish-tag">FREE ACCESS</div>
-        <div class="publish-status">Tap to publish a FREE code</div>
-      </div>
-    </button>
+<!-- INDIVIDUAL PAID PUBLISHING FORM -->
+<section id="paidPublishPanel" class="publish-panel">
+  <h2>Publish Individual Paid Code</h2>
+  <p class="muted">
+    Each code costs customers ₦500 to unlock individually.
+    You can publish unlimited Individual codes. Publishing a new code will not retire previous ones.
+  </p>
 
-    <div class="publish-card vip-card">
-      <div>
-        <h3>VIP CODES</h3>
-        <p>Publish exclusive booking codes for active VIP members.</p>
+  <form id="paidPublishForm">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="paidPlatform">Betting Platform</label>
+        <select id="paidPlatform" required>
+          <option value="">Select platform</option>
+          <option value="SportyBet">SportyBet</option>
+          <option value="1xBet">1xBet</option>
+        </select>
       </div>
-      <div>
-        <div class="publish-tag">VIP ACCESS</div>
-        <div class="publish-status">Publishing form: Next step</div>
+
+      <div class="form-group">
+        <label for="paidOdds">Betting Odds</label>
+        <input type="number" id="paidOdds" placeholder="Example: 2.50" min="0.01" step="0.01" required>
+      </div>
+
+      <div class="form-group full">
+        <label for="paidMatchTitle">Match Title</label>
+        <input type="text" id="paidMatchTitle" placeholder="Example: Arsenal vs Chelsea" required>
+      </div>
+
+      <div class="form-group full">
+        <label for="paidCompetition">Competition</label>
+        <input type="text" id="paidCompetition" placeholder="Example: Premier League" required>
+      </div>
+
+      <div class="form-group full">
+        <label for="paidBookingCode">Booking Code</label>
+        <input type="text" id="paidBookingCode" placeholder="Enter the actual booking code" autocomplete="off" required>
+      </div>
+
+      <div class="form-group">
+        <label for="paidMatchStart">Match Start Date & Time</label>
+        <input type="datetime-local" id="paidMatchStart" required>
+      </div>
+
+      <div class="form-group">
+        <label for="paidExpiry">Code Expiry Date & Time</label>
+        <input type="datetime-local" id="paidExpiry" required>
       </div>
     </div>
 
-    <div class="publish-card paid-card">
-      <div>
-        <h3>INDIVIDUAL PAID CODES</h3>
-        <p>Publish booking codes users unlock individually for ₦500.</p>
-      </div>
-      <div>
-        <div class="publish-tag">₦500 PER CODE</div>
-        <div class="publish-status">Publishing form: Next step</div>
-      </div>
+    <div class="form-actions">
+      <button type="submit" class="paid-submit" id="publishPaidBtn">Publish ₦500 Code</button>
+      <button type="button" class="close-form" id="closePaidForm">Close Form</button>
     </div>
 
-  </section>
+    <div id="paidFormMessage" class="form-message"></div>
+  </form>
+</section>
 
-  <section id="freePublishPanel">
+<h2 class="section-title">Management</h2>
 
-    <h2>Publish FREE Booking Code</h2>
+<section class="management-grid">
+  <a class="management-link" href="founder-payments.html">
+    <strong>Payment Verification</strong>
+    <span>Review VIP and individual code payment requests.</span>
+  </a>
+  <div class="management-link">
+    <strong>Users</strong>
+    <span>User management will be connected next.</span>
+  </div>
+  <div class="management-link">
+    <strong>Bookings</strong>
+    <span>Manage published codes and their status.</span>
+  </div>
+  <div class="management-link">
+    <strong>VIP Memberships</strong>
+    <span>Review and manage active memberships.</span>
+  </div>
+  <div class="management-link">
+    <strong>Advertising</strong>
+    <span>Manage advertisers, campaigns and payments.</span>
+  </div>
+  <div class="management-link">
+    <strong>Earnings & Analytics</strong>
+    <span>Review verified revenue and platform performance.</span>
+  </div>
+</section>
 
-    <p class="muted">
-      This code will be available to all users until its expiry.
-      Publishing a replacement will retire the previous active FREE code.
-    </p>
+<h2 class="section-title">Payment Settings</h2>
+<section class="card settings-card">
+  <h3>Access Bank & Paystack</h3>
+  <p class="muted">
+    Manage your bank transfer details, payment instructions and available payment methods.
+  </p>
+  <p class="status-message">
+    Payment settings connection will be added in the next development step.
+  </p>
+</section>
 
-    <form id="freePublishForm">
-
-      <div class="form-grid">
-
-        <div class="form-group">
-          <label for="freePlatform">Betting Platform</label>
-          <select id="freePlatform" required>
-            <option value="">Select platform</option>
-            <option value="SportyBet">SportyBet</option>
-            <option value="1xBet">1xBet</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="freeOdds">Betting Odds</label>
-          <input
-            type="number"
-            id="freeOdds"
-            placeholder="Example: 2.50"
-            min="0.01"
-            step="0.01"
-            required
-          >
-        </div>
-
-        <div class="form-group full">
-          <label for="freeMatchTitle">Match Title</label>
-          <input
-            type="text"
-            id="freeMatchTitle"
-            placeholder="Example: Arsenal vs Chelsea"
-            required
-          >
-        </div>
-
-        <div class="form-group full">
-          <label for="freeCompetition">Competition</label>
-          <input
-            type="text"
-            id="freeCompetition"
-            placeholder="Example: Premier League"
-            required
-          >
-        </div>
-
-        <div class="form-group full">
-          <label for="freeBookingCode">Booking Code</label>
-          <input
-            type="text"
-            id="freeBookingCode"
-            placeholder="Enter the actual booking code"
-            autocomplete="off"
-            required
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="freeMatchStart">Match Start Date & Time</label>
-          <input
-            type="datetime-local"
-            id="freeMatchStart"
-            required
-          >
-        </div>
-
-        <div class="form-group">
-          <label for="freeExpiry">Code Expiry Date & Time</label>
-          <input
-            type="datetime-local"
-            id="freeExpiry"
-            required
-          >
-        </div>
-
-      </div>
-
-      <div class="form-actions">
-        <button
-          type="submit"
-          class="publish-submit"
-          id="publishFreeBtn"
-        >
-          Publish FREE Code
-        </button>
-
-        <button
-          type="button"
-          class="close-form"
-          id="closeFreeForm"
-        >
-          Close Form
-        </button>
-      </div>
-
-      <div id="freeFormMessage"></div>
-
-    </form>
-
-  </section>
-
-  <h2 class="section-title">Management</h2>
-
-  <section class="management-grid">
-
-    <a class="management-link" href="founder-payments.html">
-      <strong>Payment Verification</strong>
-      <span>Review VIP and individual code payment requests.</span>
-    </a>
-
-    <div class="management-link">
-      <strong>Users</strong>
-      <span>User management will be connected next.</span>
-    </div>
-
-    <div class="management-link">
-      <strong>Bookings</strong>
-      <span>Manage published codes and their status.</span>
-    </div>
-
-    <div class="management-link">
-      <strong>VIP Memberships</strong>
-      <span>Review and manage active memberships.</span>
-    </div>
-
-    <div class="management-link">
-      <strong>Advertising</strong>
-      <span>Manage advertisers, campaigns and payments.</span>
-    </div>
-
-    <div class="management-link">
-      <strong>Earnings & Analytics</strong>
-      <span>Review verified revenue and platform performance.</span>
-    </div>
-
-  </section>
-
-  <h2 class="section-title">Payment Settings</h2>
-
-  <section class="card settings-card">
-    <h3>Access Bank & Paystack</h3>
-    <p class="muted">
-      Manage your bank transfer details, payment instructions
-      and available payment methods.
-    </p>
-    <p class="status-message">
-      Payment settings connection will be added in the next development step.
-    </p>
-  </section>
-
-  <p class="status-message" id="statsMessage"></p>
-
+<p class="status-message" id="statsMessage"></p>
 </main>
 
 <footer>
-  © 2026 CODEFC. Founder Control Center.
-  <br>
-  Powered by fosky.j
+© 2026 CODEFC. Founder Control Center.
+<br>Powered by fosky.j
 </footer>
-
 </div>
 
 <script>
@@ -726,25 +353,22 @@ function showAccessError(message) {
   accessMessage.style.color = "#FF7777";
 }
 
+/* FOUNDER STATISTICS */
+
 async function loadFounderStats() {
   const message = document.getElementById("statsMessage");
   const refreshButton = document.getElementById("refreshStats");
 
   refreshButton.disabled = true;
   refreshButton.textContent = "Refreshing...";
-
   message.textContent = "";
 
   try {
     const { data, error } = await db.rpc("get_founder_stats");
-
     if (error) throw error;
 
     const stats = Array.isArray(data) ? data[0] : data;
-
-    if (!stats) {
-      throw new Error("No statistics were returned.");
-    }
+    if (!stats) throw new Error("No statistics were returned.");
 
     document.getElementById("totalUsers").textContent =
       Number(stats.total_users).toLocaleString();
@@ -757,35 +381,56 @@ async function loadFounderStats() {
 
   } catch (error) {
     console.error("Founder statistics error:", error);
-    message.textContent =
-      "Unable to load statistics: " + error.message;
-
+    message.textContent = "Unable to load statistics: " + error.message;
   } finally {
     refreshButton.disabled = false;
     refreshButton.textContent = "↻ Refresh Statistics";
   }
 }
 
-/* FREE CODE FORM */
+/* FORM OPEN/CLOSE */
 
 const freePanel = document.getElementById("freePublishPanel");
-const freeForm = document.getElementById("freePublishForm");
-const freeMessage = document.getElementById("freeFormMessage");
-const publishFreeBtn = document.getElementById("publishFreeBtn");
+const paidPanel = document.getElementById("paidPublishPanel");
 
 document.getElementById("openFreeForm").addEventListener("click", () => {
+  paidPanel.style.display = "none";
   freePanel.style.display = "block";
-  freePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  freePanel.scrollIntoView({behavior:"smooth",block:"start"});
 });
 
 document.getElementById("closeFreeForm").addEventListener("click", () => {
   freePanel.style.display = "none";
 });
 
+document.getElementById("openPaidForm").addEventListener("click", () => {
+  freePanel.style.display = "none";
+  paidPanel.style.display = "block";
+  paidPanel.scrollIntoView({behavior:"smooth",block:"start"});
+});
+
+document.getElementById("closePaidForm").addEventListener("click", () => {
+  paidPanel.style.display = "none";
+});
+
+/* FORM MESSAGES */
+
 function showFreeMessage(message, type) {
-  freeMessage.textContent = message;
-  freeMessage.className = type;
+  const element = document.getElementById("freeFormMessage");
+  element.textContent = message;
+  element.className = "form-message " + type;
 }
+
+function showPaidMessage(message, type) {
+  const element = document.getElementById("paidFormMessage");
+  element.textContent = message;
+  element.className = "form-message " + type;
+}
+
+/* FREE CODE PUBLISHING */
+
+const freeForm = document.getElementById("freePublishForm");
+const publishFreeBtn = document.getElementById("publishFreeBtn");
 
 freeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -803,16 +448,8 @@ freeForm.addEventListener("submit", async (event) => {
   const matchStartValue = document.getElementById("freeMatchStart").value;
   const expiryValue = document.getElementById("freeExpiry").value;
 
-  if (
-    !platform ||
-    !matchTitle ||
-    !competition ||
-    !bookingCode ||
-    !matchStartValue ||
-    !expiryValue ||
-    !Number.isFinite(odds) ||
-    odds <= 0
-  ) {
+  if (!platform || !matchTitle || !competition || !bookingCode ||
+      !matchStartValue || !expiryValue || !Number.isFinite(odds) || odds <= 0) {
     showFreeMessage("Please complete all fields with valid information.", "error");
     return;
   }
@@ -820,10 +457,7 @@ freeForm.addEventListener("submit", async (event) => {
   const matchStart = new Date(matchStartValue);
   const expiry = new Date(expiryValue);
 
-  if (
-    Number.isNaN(matchStart.getTime()) ||
-    Number.isNaN(expiry.getTime())
-  ) {
+  if (Number.isNaN(matchStart.getTime()) || Number.isNaN(expiry.getTime())) {
     showFreeMessage("Please enter valid match and expiry dates.", "error");
     return;
   }
@@ -835,7 +469,6 @@ freeForm.addEventListener("submit", async (event) => {
 
   publishFreeBtn.disabled = true;
   publishFreeBtn.textContent = "Publishing...";
-
   showFreeMessage("Publishing your FREE booking code...", "success");
 
   try {
@@ -850,10 +483,7 @@ freeForm.addEventListener("submit", async (event) => {
     });
 
     if (error) throw error;
-
-    if (!data) {
-      throw new Error("The database did not return a code ID.");
-    }
+    if (!data) throw new Error("The database did not return a code ID.");
 
     freeForm.reset();
 
@@ -865,16 +495,107 @@ freeForm.addEventListener("submit", async (event) => {
 
   } catch (error) {
     console.error("FREE code publishing error:", error);
-
-    showFreeMessage(
-      "Publishing failed: " + (error.message || "Unknown database error."),
-      "error"
-    );
-
+    showFreeMessage("Publishing failed: " + error.message, "error");
   } finally {
     publishFreeBtn.disabled = false;
     publishFreeBtn.textContent = "Publish FREE Code";
   }
+});
+
+/* INDIVIDUAL PAID CODE PUBLISHING */
+
+const paidForm = document.getElementById("paidPublishForm");
+const publishPaidBtn = document.getElementById("publishPaidBtn");
+
+paidForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!db) {
+    showPaidMessage("Database connection unavailable.", "error");
+    return;
+  }
+
+  const platform = document.getElementById("paidPlatform").value;
+  const odds = Number(document.getElementById("paidOdds").value);
+  const matchTitle = document.getElementById("paidMatchTitle").value.trim();
+  const competition = document.getElementById("paidCompetition").value.trim();
+  
+const bookingCode = document.getElementById("paidBookingCode").value.trim();
+const matchStartValue = document.getElementById("paidMatchStart").value;
+const expiryValue = document.getElementById("paidExpiry").value;
+
+if (
+  !platform ||
+  !matchTitle ||
+  !competition ||
+  !bookingCode ||
+  !matchStartValue ||
+  !expiryValue ||
+  !Number.isFinite(odds) ||
+  odds <= 0
+) {
+  showPaidMessage("Please complete all fields with valid information.", "error");
+  return;
+}
+
+const matchStart = new Date(matchStartValue);
+const expiry = new Date(expiryValue);
+
+if (
+  Number.isNaN(matchStart.getTime()) ||
+  Number.isNaN(expiry.getTime())
+) {
+  showPaidMessage("Please enter valid match and expiry dates.", "error");
+  return;
+}
+
+if (expiry.getTime() <= Date.now()) {
+  showPaidMessage("The expiry date and time must be in the future.", "error");
+  return;
+}
+
+publishPaidBtn.disabled = true;
+publishPaidBtn.textContent = "Publishing...";
+
+showPaidMessage("Publishing your Individual Paid Code...", "success");
+
+try {
+  const { data, error } = await db.rpc("founder_publish_individual_code", {
+    p_platform: platform,
+    p_match_title: matchTitle,
+    p_competition: competition,
+    p_odds: odds,
+    p_booking_code: bookingCode,
+    p_match_starts_at: matchStart.toISOString(),
+    p_expires_at: expiry.toISOString()
+  });
+
+  if (error) throw error;
+
+  if (!data) {
+    throw new Error("The database did not return a code ID.");
+  }
+
+  paidForm.reset();
+
+  showPaidMessage(
+    "SUCCESS! Your Individual Paid Code has been published. " +
+    "Customer unlock price: ₦500. Code ID: " + data,
+    "success"
+  );
+
+} catch (error) {
+  console.error("Individual code publishing error:", error);
+
+  showPaidMessage(
+    "Publishing failed: " + (error.message || "Unknown database error."),
+    "error"
+  );
+
+} finally {
+  publishPaidBtn.disabled = false;
+  publishPaidBtn.textContent = "Publish ₦500 Code";
+}
 });
 
 /* FOUNDER ACCESS */
@@ -898,12 +619,11 @@ async function initializeFounderDashboard() {
       return;
     }
 
-    const { data: profile, error: profileError } =
-      await db
-        .from("profiles")
-        .select("is_admin")
-        .eq("id", session.user.id)
-        .maybeSingle();
+    const { data: profile, error: profileError } = await db
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", session.user.id)
+      .maybeSingle();
 
     if (profileError) throw profileError;
 
@@ -920,6 +640,7 @@ async function initializeFounderDashboard() {
 
   } catch (error) {
     console.error("Founder access error:", error);
+
     showAccessError(
       "Unable to verify Founder access. Please refresh and try again."
     );
