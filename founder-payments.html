@@ -499,7 +499,7 @@ main {
     const { data, error } = await db
       .from('code_purchases')
       .select(
-        'id,code_id,user_id,amount_ngn,payment_reference,created_at'
+        'id,code_id,user_id,amount_ngn,sender_name,payment_reference,created_at'
       )
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
@@ -556,7 +556,7 @@ main {
 
         customer,
 
-        sender: 'Not collected in this payment form',
+        sender: r.sender_name || '—',
 
         amount: '₦' + Number(r.amount_ngn).toLocaleString(),
 
