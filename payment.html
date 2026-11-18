@@ -574,13 +574,14 @@ form.addEventListener('submit', async event => {
         .from('code_purchases')
         .insert({
 
-          code_id: codeId,
-          user_id: user.id,
-          amount_ngn: 500,
-          payment_reference: reference,
-          status: 'pending'
+  code_id: codeId,
+  user_id: user.id,
+  sender_name: sender,
+  amount_ngn: 500,
+  payment_reference: reference,
+  status: 'pending'
 
-        });
+});
 
       if (insertError) throw insertError;
 
