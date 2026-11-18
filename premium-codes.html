@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080B08">
+<title>Premium Codes — CODEFC</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080B08;color:#f5f5f5;font-family:Arial,sans-serif}
+header{padding:17px 5%;border-bottom:1px solid #263126;display:flex;justify-content:space-between;align-items:center}
+.logo{color:#39FF14;font-weight:900;font-size:22px;text-decoration:none}
+.back{color:#39FF14;text-decoration:none;font-size:13px}
+main{max-width:950px;margin:28px auto;padding:0 15px}
+h1{font-size:25px;margin:0 0 8px}
+.intro{color:#929B92;font-size:13px;line-height:1.6;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.code-card{background:#111811;border:1px solid #29412B;border-radius:10px;padding:13px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.platform{font-size:10px;color:#39FF14;font-weight:bold}
+.active{font-size:9px;color:#39FF14;background:#15301A;padding:5px 7px;border-radius:20px}
+.match{font-size:14px;font-weight:bold;line-height:1.4;margin-bottom:4px;overflow-wrap:anywhere}
+.competition{font-size:10px;color:#929B92;margin-bottom:11px;overflow-wrap:anywhere}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}
+.detail{background:#080B08;border:1px solid #263126;border-radius:6px;padding:8px;min-width:0}
+.detail span{display:block;color:#929B92;font-size:9px;margin-bottom:5px}
+.detail strong{font-size:11px;display:block;overflow-wrap:anywhere;line-height:1.4}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #263126;padding-top:10px}
+.price{font-size:15px;color:#39FF14;font-weight:bold;white-space:nowrap}
+.choose{background:#39FF14;color:#080B08;border:0;border-radius:6px;padding:10px 12px;font-weight:bold;font-size:11px;cursor:pointer}
+.choose:disabled{opacity:.5}
+.loading,.empty,.error{background:#111811;border:1px solid #263126;border-radius:9px;padding:20px;text-align:center;color:#929B92;font-size:13px;line-height:1.6}
+.error{color:#ff9999;border-color:#793535}
+.more-wrap{text-align:center;margin:20px 0}
+.more{background:#172217;border:1px solid #39FF14;color:#39FF14;border-radius:7px;padding:12px 22px;font-weight:bold;cursor:pointer}
+.note{text-align:center;color:#929B92;font-size:11px;margin:20px 0}
+@media(max-width:560px){.grid{grid-template-columns:1fr}main{margin-top:22px}.code-card{padding:12px}}
+</style>
+</head>
+<body>
+
+<header>
+<a class="logo" href="index.html">CODEFC</a>
+<a class="back" href="index.html#paid-codes">← Back</a>
+</header>
+
+<main>
+<h1>Choose a <span style="color:#39FF14">Premium Code</span></h1>
+<p class="intro">
+Browse available SportyBet and 1xBet selections. Compare the match,
+odds and expiry time, then select the code you want to unlock.
+Each code costs ₦500.
+</p>
+
+<div id="codeList" class="grid">
+<div class="loading">Loading available premium codes...</div>
+</div>
+
+<div class="more-wrap" id="moreWrap" hidden>
+<button class="more" id="moreButton">VIEW MORE CODES</button>
+</div>
+
+<p class="note">Your selected code will remain locked until your payment is verified.</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+(() => {
+const host = document.getElementById("codeList");
+const moreWrap = document.getElementById("moreWrap");
+const moreButton = document.getElementById("moreButton");
+
+let allCodes = [];
+let visibleCount = 6;
+
+function showMessage(text, error = false) {
+  const box = document.createElement("div");
+  box.className = error ? "error" : "empty";
+  box.style.gridColumn = "1 / -1";
+  box.textContent = text;
+  host.replaceChildren(box);
+  moreWrap.hidden = true;
+}
+
+function dateText(value) {
+  if (!value) return "Not available";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "Not available";
+
+  return d.toLocaleString("en-NG", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function makeDetail(label, value) {
+  const box = document.createElement("div");
+  box.className = "detail";
+
+  const small = document.createElement("span");
+  small.textContent = label;
+
+  const strong = document.createElement("strong");
+  strong.textContent = value;
+
+  box.append(small, strong);
+  return box;
+}
+
+function makeCard(code) {
+  const card = document.createElement("article");
+  card.className = "code-card";
+
+  const top = document.createElement("div");
+  top.className = "top";
+
+  const platform = document.createElement("span");
+  platform.className = "platform";
+  platform.textContent = code.platform;
+
+  const status = document.createElement("span");
+  status.className = "active";
+  status.textContent = "AVAILABLE";
+
+  top.append(platform, status);
+
+  const match = document.createElement("div");
+  match.className = "match";
+  match.textContent = code.match_title || "Match";
+
+  const competition = document.createElement("div");
+  competition.className = "competition";
+  competition.textContent = code.competition || "Competition";
+
+  const details = document.createElement("div");
+  details.className = "details";
+  details.append(
+    makeDetail("ODDS", Number(code.odds).toFixed(2)),
+    makeDetail("MATCH START", dateText(code.match_starts_at)),
+    makeDetail("EXPIRES", dateText(code.expires_at))
+  );
+
+  const bottom = document.createElement("div");
+  bottom.className = "bottom";
+
+  const price = document.createElement("span");
+  price.className = "price";
+  price.textContent = "₦500";
+
+  const button = document.createElement("button");
+  button.className = "choose";
+  button.type = "button";
+  button.textContent = "SELECT CODE";
+
+  button.addEventListener("click", () => {
+    location.href =
+      "payment.html?type=code&code_id=" +
+      encodeURIComponent(code.id);
+  });
+
+  bottom.append(price, button);
+  card.append(top, match, competition, details, bottom);
+
+  return card;
+}
+
+function renderCodes() {
+  host.replaceChildren();
+
+  const shown = allCodes.slice(0, visibleCount);
+
+  if (!shown.length) {
+    showMessage("No available premium codes right now. Please check again later.");
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  shown.forEach(code => fragment.appendChild(makeCard(code)));
+  host.appendChild(fragment);
+
+  moreWrap.hidden = allCodes.length <= visibleCount;
+
+  moreButton.textContent =
+    visibleCount >= allCodes.length
+      ? "ALL CODES DISPLAYED"
+      : "VIEW MORE CODES";
+}
+
+moreButton.addEventListener("click", () => {
+  visibleCount += 6;
+  renderCodes();
+});
+
+async function loadCodes() {
+  try {
+    const db = window.CODEFC_DB;
+
+    if (!db) {
+      throw new Error("Database connection unavailable. Refresh and try again.");
+    }
+
+    const now = new Date().toISOString();
+
+    const {data, error} = await db
+      .from("codes")
+      .select("id,platform,match_title,competition,odds,match_starts_at,expires_at,created_at")
+      .eq("access_type", "paid")
+      .eq("status", "active")
+      .gt("expires_at", now)
+      .order("created_at", {ascending:false});
+
+    if (error) throw error;
+
+    let codes = data || [];
+
+    const {data: sessionData, error: sessionError} =
+      await db.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const user = sessionData.session?.user;
+
+    if (user && codes.length) {
+      const {data: purchases, error: purchaseError} = await db
+        .from("code_purchases")
+        .select("code_id,status")
+        .eq("user_id", user.id)
+        .in("status", ["pending","approved"]);
+
+      if (purchaseError) throw purchaseError;
+
+      const alreadySelected = new Set(
+        (purchases || []).map(p => p.code_id)
+      );
+
+      codes = codes.filter(code => !alreadySelected.has(code.id));
+    }
+
+    allCodes = codes;
+
+    if (!allCodes.length) {
+      showMessage("No new premium codes are available for you right now. Please check again later.");
+      return;
+    }
+
+    renderCodes();
+
+  } catch (error) {
+    console.error("Premium code loading error:", error);
+    showMessage(
+      "Unable to load premium codes: " +
+      (error.message || "Please refresh and try again."),
+      true
+    );
+  }
+}
+
+loadCodes();
+})();
+</script>
+</body>
+</html>
