@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,6 +145,15 @@ main {
 .free-card {
   background: #12351D;
   border: 1px solid #286B36;
+  cursor: pointer;
+  color: white;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+}
+
+.free-card:hover {
+  border-color: #39FF14;
 }
 
 .vip-card {
@@ -254,6 +264,126 @@ main {
   display: none;
 }
 
+/* FREE CODE FORM */
+
+#freePublishPanel {
+  display: none;
+  margin-top: 18px;
+  background: #101A11;
+  border: 1px solid #286B36;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+#freePublishPanel h2 {
+  color: #39FF14;
+  font-size: 19px;
+  margin-bottom: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.form-group {
+  min-width: 0;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: #C6D0C6;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  background: #080B08;
+  border: 1px solid #394839;
+  border-radius: 7px;
+  color: white;
+  padding: 13px;
+  font-size: 14px;
+  outline: none;
+  min-width: 0;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #39FF14;
+}
+
+.form-group input::placeholder {
+  color: #697369;
+}
+
+.form-group input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.publish-submit {
+  background: #39FF14;
+  border: none;
+  color: #080B08;
+  padding: 13px 19px;
+  border-radius: 7px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.publish-submit:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.close-form {
+  background: transparent;
+  border: 1px solid #394839;
+  color: white;
+  padding: 13px 19px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+#freeFormMessage {
+  display: none;
+  padding: 12px;
+  margin-top: 16px;
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+#freeFormMessage.success {
+  display: block;
+  background: #12351D;
+  border: 1px solid #286B36;
+  color: #39FF14;
+}
+
+#freeFormMessage.error {
+  display: block;
+  background: #351717;
+  border: 1px solid #793535;
+  color: #FF9999;
+}
+
 footer {
   text-align: center;
   padding: 30px 15px;
@@ -276,6 +406,14 @@ footer {
 
   .welcome h1 {
     font-size: 23px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group.full {
+    grid-column: auto;
   }
 }
 
@@ -366,22 +504,22 @@ footer {
   <h2 class="section-title">Publish Booking Codes</h2>
 
   <p class="muted section-description">
-    Each category will have its own publishing form.
+    Each category has its own publishing form.
     Booking codes must have an expiry date and time.
   </p>
 
   <section class="publish-grid">
 
-    <div class="publish-card free-card">
+    <button class="publish-card free-card" id="openFreeForm" type="button">
       <div>
         <h3>FREE CODES</h3>
         <p>Publish free booking codes for all users.</p>
       </div>
       <div>
         <div class="publish-tag">FREE ACCESS</div>
-        <div class="publish-status">Publishing form: Next step</div>
+        <div class="publish-status">Tap to publish a FREE code</div>
       </div>
-    </div>
+    </button>
 
     <div class="publish-card vip-card">
       <div>
@@ -404,6 +542,115 @@ footer {
         <div class="publish-status">Publishing form: Next step</div>
       </div>
     </div>
+
+  </section>
+
+  <section id="freePublishPanel">
+
+    <h2>Publish FREE Booking Code</h2>
+
+    <p class="muted">
+      This code will be available to all users until its expiry.
+      Publishing a replacement will retire the previous active FREE code.
+    </p>
+
+    <form id="freePublishForm">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="freePlatform">Betting Platform</label>
+          <select id="freePlatform" required>
+            <option value="">Select platform</option>
+            <option value="SportyBet">SportyBet</option>
+            <option value="1xBet">1xBet</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="freeOdds">Betting Odds</label>
+          <input
+            type="number"
+            id="freeOdds"
+            placeholder="Example: 2.50"
+            min="0.01"
+            step="0.01"
+            required
+          >
+        </div>
+
+        <div class="form-group full">
+          <label for="freeMatchTitle">Match Title</label>
+          <input
+            type="text"
+            id="freeMatchTitle"
+            placeholder="Example: Arsenal vs Chelsea"
+            required
+          >
+        </div>
+
+        <div class="form-group full">
+          <label for="freeCompetition">Competition</label>
+          <input
+            type="text"
+            id="freeCompetition"
+            placeholder="Example: Premier League"
+            required
+          >
+        </div>
+
+        <div class="form-group full">
+          <label for="freeBookingCode">Booking Code</label>
+          <input
+            type="text"
+            id="freeBookingCode"
+            placeholder="Enter the actual booking code"
+            autocomplete="off"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="freeMatchStart">Match Start Date & Time</label>
+          <input
+            type="datetime-local"
+            id="freeMatchStart"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="freeExpiry">Code Expiry Date & Time</label>
+          <input
+            type="datetime-local"
+            id="freeExpiry"
+            required
+          >
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="publish-submit"
+          id="publishFreeBtn"
+        >
+          Publish FREE Code
+        </button>
+
+        <button
+          type="button"
+          class="close-form"
+          id="closeFreeForm"
+        >
+          Close Form
+        </button>
+      </div>
+
+      <div id="freeFormMessage"></div>
+
+    </form>
 
   </section>
 
@@ -519,6 +766,119 @@ async function loadFounderStats() {
   }
 }
 
+/* FREE CODE FORM */
+
+const freePanel = document.getElementById("freePublishPanel");
+const freeForm = document.getElementById("freePublishForm");
+const freeMessage = document.getElementById("freeFormMessage");
+const publishFreeBtn = document.getElementById("publishFreeBtn");
+
+document.getElementById("openFreeForm").addEventListener("click", () => {
+  freePanel.style.display = "block";
+  freePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+document.getElementById("closeFreeForm").addEventListener("click", () => {
+  freePanel.style.display = "none";
+});
+
+function showFreeMessage(message, type) {
+  freeMessage.textContent = message;
+  freeMessage.className = type;
+}
+
+freeForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!db) {
+    showFreeMessage("Database connection unavailable.", "error");
+    return;
+  }
+
+  const platform = document.getElementById("freePlatform").value;
+  const odds = Number(document.getElementById("freeOdds").value);
+  const matchTitle = document.getElementById("freeMatchTitle").value.trim();
+  const competition = document.getElementById("freeCompetition").value.trim();
+  const bookingCode = document.getElementById("freeBookingCode").value.trim();
+  const matchStartValue = document.getElementById("freeMatchStart").value;
+  const expiryValue = document.getElementById("freeExpiry").value;
+
+  if (
+    !platform ||
+    !matchTitle ||
+    !competition ||
+    !bookingCode ||
+    !matchStartValue ||
+    !expiryValue ||
+    !Number.isFinite(odds) ||
+    odds <= 0
+  ) {
+    showFreeMessage("Please complete all fields with valid information.", "error");
+    return;
+  }
+
+  const matchStart = new Date(matchStartValue);
+  const expiry = new Date(expiryValue);
+
+  if (
+    Number.isNaN(matchStart.getTime()) ||
+    Number.isNaN(expiry.getTime())
+  ) {
+    showFreeMessage("Please enter valid match and expiry dates.", "error");
+    return;
+  }
+
+  if (expiry.getTime() <= Date.now()) {
+    showFreeMessage("The expiry date and time must be in the future.", "error");
+    return;
+  }
+
+  publishFreeBtn.disabled = true;
+  publishFreeBtn.textContent = "Publishing...";
+
+  showFreeMessage("Publishing your FREE booking code...", "success");
+
+  try {
+    const { data, error } = await db.rpc("founder_publish_free_code", {
+      p_platform: platform,
+      p_match_title: matchTitle,
+      p_competition: competition,
+      p_odds: odds,
+      p_booking_code: bookingCode,
+      p_match_starts_at: matchStart.toISOString(),
+      p_expires_at: expiry.toISOString()
+    });
+
+    if (error) throw error;
+
+    if (!data) {
+      throw new Error("The database did not return a code ID.");
+    }
+
+    freeForm.reset();
+
+    showFreeMessage(
+      "SUCCESS! Your FREE booking code has been published. " +
+      "The previous active FREE code has been retired. Code ID: " + data,
+      "success"
+    );
+
+  } catch (error) {
+    console.error("FREE code publishing error:", error);
+
+    showFreeMessage(
+      "Publishing failed: " + (error.message || "Unknown database error."),
+      "error"
+    );
+
+  } finally {
+    publishFreeBtn.disabled = false;
+    publishFreeBtn.textContent = "Publish FREE Code";
+  }
+});
+
+/* FOUNDER ACCESS */
+
 async function initializeFounderDashboard() {
   if (!db) {
     showAccessError("CODEFC database connection unavailable.");
@@ -589,5 +949,4 @@ initializeFounderDashboard();
 </script>
 
 </body>
-  </html>
-          
+</html>
