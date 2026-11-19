@@ -259,6 +259,90 @@ main {
   opacity: .5;
 }
 
+  
+/* CODEFC Link Generator */
+.link-input {
+  width: 100%;
+  background: #080B08;
+  border: 1px solid #394939;
+  border-radius: 8px;
+  padding: 13px;
+  color: white;
+  font: inherit;
+  font-size: 14px;
+  margin: 7px 0 14px;
+  outline: none;
+}
+
+.link-input:focus {
+  border-color: #39FF14;
+}
+
+.link-label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.link-create {
+  width: 100%;
+  padding: 13px;
+  background: #39FF14;
+  color: #071007;
+  border: 0;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.link-item {
+  border-top: 1px solid #293629;
+  padding: 15px 0;
+}
+
+.link-item p {
+  font-size: 13px;
+  color: #aab4aa;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.link-url {
+  color: #39FF14;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.link-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.link-actions button {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #394939;
+  border-radius: 7px;
+  background: #172217;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.link-actions .delete-link {
+  background: #392020;
+  color: #ff9999;
+}
+
+.link-status {
+  color: #39FF14;
+  font-size: 12px;
+  margin-top: 12px;
+}
+    
 @media(max-width: 450px) {
   main { padding: 0 12px 35px; }
   .card { padding: 15px; }
@@ -294,14 +378,25 @@ main {
   <div id="vip">Loading...</div>
 </section>
 
+
 <section class="card">
   <h2>Individual Code Requests · ₦500</h2>
   <p class="muted">Individual booking-code purchases awaiting verification.</p>
   <div id="codes">Loading...</div>
 </section>
 
+<!-- CODEFC LINK GENERATOR -->
+<section class="card">
+  <!-- Keep your Link Generator form here exactly once -->
+</section>
+
+<section class="card">
+  <!-- Keep Generated Links here exactly once -->
+</section>
+
 </main>
 
+  
 <!-- Rejection form -->
 <div class="modal" id="rejectModal">
   <div class="modal-content">
@@ -814,10 +909,233 @@ main {
     });
   }
 
+  
+  // CODEFC LINK GENERATOR
+
+  const linkStatus = $('linkStatus');
+
+  function showLinkStatus(message) {
+    linkStatus.textContent = message;
+  }
+
+  function makeShortURL(code) {
+    return new URL(
+      'go.html?c=' + encodeURIComponent(code),
+      location.href
+    ).href;
+  }
+
+  async function loadGeneratedLinks() {
+
+    const host = $('generatedLinks');
+    host.textContent = 'Loading links...';
+
+    const { data, error } = await db
+      .from('codefc_links')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      host.textContent = 'Could not load links: ' + error.message;
+      return;
+    }
+
+    host.replaceChildren();
+
+    if (!data || !data.length) {
+      host.append(el('p', 'No links generated yet.'));
+      host.lastChild.className = 'empty';
+      return;
+    }
+
+    data.forEach(link => {
+
+      const box = document.createElement('div');
+      box.className = 'link-item';
+
+      const heading = el('strong', link.link_name);
+      box.append(heading);
+
+      const status = el(
+        'p',
+        link.is_active ? 'ACTIVE' : 'INACTIVE'
+      );
+
+      status.style.color = link.is_active ? '#39FF14' : '#ff9999';
+      box.append(status);
+
+      const code = el('p', 'Short code: ' + link.short_code);
+      box.append(code);
+
+      const destination = el('p', 'Destination: ' + link.destination_url);
+      box.append(destination);
+
+      const clicks = el('p', 'Total clicks: ' + link.total_clicks);
+      box.append(clicks);
+
+      const url = makeShortURL(link.short_code);
+
+      const shortLink = el('a', url);
+      shortLink.href = url;
+      shortLink.target = '_blank';
+      shortLink.rel = 'noopener noreferrer';
+      shortLink.className = 'link-url';
+
+      box.append(shortLink);
+
+      const actions = document.createElement('div');
+      actions.className = 'link-actions';
+
+      const copy = el('button', 'Copy Link');
+
+      copy.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          showLinkStatus('Link copied successfully.');
+        } catch {
+          showLinkStatus('Could not copy automatically. Select the link to copy it.');
+        }
+      };
+
+      const toggle = el(
+        'button',
+        link.is_active ? 'Deactivate' : 'Activate'
+      );
+
+      toggle.onclick = async () => {
+
+        toggle.disabled = true;
+
+        const { error } = await db
+          .from('codefc_links')
+          .update({ is_active: !link.is_active })
+          .eq('id', link.id);
+
+        if (error) {
+          showLinkStatus('Update failed: ' + error.message);
+          toggle.disabled = false;
+          return;
+        }
+
+        showLinkStatus('Link status updated.');
+        await loadGeneratedLinks();
+      };
+
+      const remove = el('button', 'Delete');
+      remove.className = 'delete-link';
+
+      remove.onclick = async () => {
+
+        if (!confirm(
+          'Permanently delete this CODEFC link?'
+        )) return;
+
+        remove.disabled = true;
+
+        const { error } = await db
+          .from('codefc_links')
+          .delete()
+          .eq('id', link.id);
+
+        if (error) {
+          showLinkStatus('Delete failed: ' + error.message);
+          remove.disabled = false;
+          return;
+        }
+
+        showLinkStatus('Link deleted.');
+        await loadGeneratedLinks();
+      };
+
+      actions.append(copy, toggle, remove);
+      box.append(actions);
+
+      host.append(box);
+
+    });
+  }
+
+  $('linkForm').onsubmit = async event => {
+
+    event.preventDefault();
+
+    const name = $('linkName').value.trim();
+    const customCode = $('shortCode').value.trim().toLowerCase();
+    const destination = $('destinationURL').value.trim();
+
+    let parsedURL;
+
+    try {
+      parsedURL = new URL(destination);
+    } catch {
+      showLinkStatus('Enter a valid destination URL.');
+      return;
+    }
+
+    if (!['http:', 'https:'].includes(parsedURL.protocol)) {
+      showLinkStatus('Only HTTP and HTTPS links are allowed.');
+      return;
+    }
+
+    if (!name) {
+      showLinkStatus('Enter a link name.');
+      return;
+    }
+
+    if (
+      customCode &&
+      !/^[a-z0-9_-]{1,50}$/.test(customCode)
+    ) {
+      showLinkStatus('Invalid short code. Use letters, numbers, hyphens or underscores.');
+      return;
+    }
+
+    const code = customCode ||
+      'cf-' + crypto.randomUUID().slice(0, 8);
+
+    const button = $('createLink');
+
+    button.disabled = true;
+    button.textContent = 'Creating Link...';
+
+    const { data, error } = await db
+      .from('codefc_links')
+      .insert({
+        link_name: name,
+        short_code: code,
+        destination_url: parsedURL.href,
+        created_by: session.user.id
+      })
+      .select('id')
+      .single();
+
+    button.disabled = false;
+    button.textContent = 'Generate CODEFC Link';
+
+    if (error) {
+      if (error.code === '23505') {
+        showLinkStatus('This short code already exists. Choose another.');
+      } else {
+        showLinkStatus('Link creation failed: ' + error.message);
+      }
+      return;
+    }
+
+    $('linkForm').reset();
+
+    const generatedURL = makeShortURL(code);
+
+    showLinkStatus('Link created: ' + generatedURL);
+
+    await loadGeneratedLinks();
+  };
+
   await Promise.all([
     loadVIP(),
-    loadCodes()
+    loadCodes(),
+    loadGeneratedLinks()
   ]);
+  
 
   $('logout').onclick = async () => {
 
