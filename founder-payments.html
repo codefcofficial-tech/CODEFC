@@ -385,16 +385,34 @@ main {
   <div id="codes">Loading...</div>
 </section>
 
+
 <!-- CODEFC LINK GENERATOR -->
 <section class="card">
-  <!-- Keep your Link Generator form here exactly once -->
+  <h2>CODEFC Link Generator</h2>
+  <p class="muted">Create and manage your official CODEFC short links.</p>
+
+  <form id="linkForm">
+    <label class="link-label" for="linkName">Link Name</label>
+    <input class="link-input" id="linkName" type="text" placeholder="e.g. WhatsApp Support" required>
+
+    <label class="link-label" for="shortCode">Custom Short Code</label>
+    <input class="link-input" id="shortCode" type="text" placeholder="e.g. support">
+
+    <label class="link-label" for="destinationURL">Destination URL</label>
+    <input class="link-input" id="destinationURL" type="url" placeholder="https://example.com" required>
+
+    <button class="link-create" id="createLink" type="submit">Generate CODEFC Link</button>
+  </form>
+
+  <p id="linkStatus" class="link-status"></p>
 </section>
 
 <section class="card">
-  <!-- Keep Generated Links here exactly once -->
+  <h2>Generated Links</h2>
+  <p class="muted">View, copy, activate, deactivate and delete your links.</p>
+  <div id="generatedLinks">Loading links...</div>
 </section>
-
-</main>
+  
 
   
 <!-- Rejection form -->
