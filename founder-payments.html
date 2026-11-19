@@ -7,9 +7,7 @@
 <title>Founder Payments | CODEFC</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -54,9 +52,7 @@ main {
   margin: 15px 0;
 }
 
-.card h2 {
-  font-size: 17px;
-}
+.card h2 { font-size: 17px; }
 
 .muted {
   color: #9aa49a;
@@ -84,9 +80,7 @@ main {
   line-height: 1.5;
 }
 
-.request strong {
-  color: #f5f5f5;
-}
+.request strong { color: #f5f5f5; }
 
 .request-type {
   display: inline-block;
@@ -128,7 +122,8 @@ main {
   flex: 1;
 }
 
-.actions button:disabled {
+.actions button:disabled,
+.view-all:disabled {
   opacity: .5;
   cursor: not-allowed;
 }
@@ -155,10 +150,6 @@ main {
   cursor: pointer;
 }
 
-.view-all:disabled {
-  opacity: .5;
-}
-
 .request-count {
   color: #929B92;
   font-size: 12px;
@@ -171,18 +162,108 @@ main {
   padding: 15px 0;
 }
 
+/* Rejection form */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,.82);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal.show { display: flex; }
+
+.modal-content {
+  width: 100%;
+  max-width: 500px;
+  background: #111811;
+  border: 1px solid #345034;
+  border-radius: 14px;
+  padding: 22px;
+  margin: auto;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.modal-content label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin: 17px 0 8px;
+}
+
+.modal-content textarea,
+.modal-content input {
+  width: 100%;
+  background: #080B08;
+  border: 1px solid #394939;
+  border-radius: 8px;
+  padding: 13px;
+  color: white;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.modal-content textarea {
+  min-height: 130px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.modal-content textarea:focus,
+.modal-content input:focus {
+  border-color: #39FF14;
+}
+
+.field-help {
+  color: #929B92;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 13px 8px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #263126;
+  color: white;
+}
+
+.confirm-reject {
+  background: #D93636;
+  color: white;
+}
+
+.confirm-reject:disabled {
+  opacity: .5;
+}
+
 @media(max-width: 450px) {
-  main {
-    padding: 0 12px 35px;
-  }
-
-  .card {
-    padding: 15px;
-  }
-
-  .actions button {
-    font-size: 12px;
-  }
+  main { padding: 0 12px 35px; }
+  .card { padding: 15px; }
+  .actions button { font-size: 12px; }
+  .modal-content { padding: 18px; }
 }
 </style>
 </head>
@@ -220,6 +301,64 @@ main {
 </section>
 
 </main>
+
+<!-- Rejection form -->
+<div class="modal" id="rejectModal">
+  <div class="modal-content">
+
+    <h2>Reject Payment Request</h2>
+
+    <p class="muted" id="rejectDescription">
+      Provide the reason and customer support contact information.
+    </p>
+
+    <form id="rejectForm">
+
+      <label for="rejectionReason">
+        Rejection Reason (Required)
+      </label>
+
+      <textarea
+        id="rejectionReason"
+        placeholder="Explain clearly why this payment request is being rejected..."
+        required
+        maxlength="3000"
+      ></textarea>
+
+      <div class="field-help">
+        This explanation will appear in the customer's notification.
+      </div>
+
+      <label for="contactInfo">
+        Contact Us Link or Phone Number (Required)
+      </label>
+
+      <input
+        id="contactInfo"
+        type="text"
+        placeholder="e.g. https://wa.me/234XXXXXXXXXX"
+        required
+        maxlength="500"
+      >
+
+      <div class="field-help">
+        Enter your WhatsApp link, support link or phone number.
+        This will appear separately from the rejection reason.
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" id="cancelReject">
+          Cancel
+        </button>
+
+        <button type="submit" class="confirm-reject" id="confirmReject">
+          Confirm Rejection
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
@@ -263,6 +402,93 @@ main {
     const node = document.createElement(tag);
     node.textContent = text;
     return node;
+  };
+
+  let rejectionTarget = null;
+
+  function openRejectForm(details) {
+    rejectionTarget = details;
+
+    $('rejectDescription').textContent =
+      'Rejecting: ' + details.heading +
+      '. Provide the reason and customer support contact information.';
+
+    $('rejectionReason').value = '';
+    $('contactInfo').value = '';
+
+    $('rejectModal').classList.add('show');
+    $('rejectionReason').focus();
+  }
+
+  function closeRejectForm() {
+    $('rejectModal').classList.remove('show');
+    $('rejectForm').reset();
+    rejectionTarget = null;
+  }
+
+  $('cancelReject').onclick = closeRejectForm;
+
+  $('rejectModal').addEventListener('click', event => {
+    if (event.target === $('rejectModal')) {
+      closeRejectForm();
+    }
+  });
+
+  $('rejectForm').onsubmit = async event => {
+    event.preventDefault();
+
+    if (!rejectionTarget) return;
+
+    const reason = $('rejectionReason').value.trim();
+    const contact = $('contactInfo').value.trim();
+
+    if (!reason || !contact) {
+      msg('Both rejection reason and contact information are required.');
+      return;
+    }
+
+    const confirmButton = $('confirmReject');
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Processing...';
+
+    const target = rejectionTarget;
+
+    const { data, error } = await db
+      .from(target.table)
+      .update({
+        status: 'rejected',
+        rejection_reason: reason,
+        contact_info: contact
+      })
+      .eq('id', target.id)
+      .eq('status', 'pending')
+      .select('id')
+      .maybeSingle();
+
+    confirmButton.disabled = false;
+    confirmButton.textContent = 'Confirm Rejection';
+
+    if (error) {
+      msg('Rejection failed: ' + error.message);
+      return;
+    }
+
+    if (!data) {
+      msg('This request is no longer pending. Refresh the page.');
+      closeRejectForm();
+      await Promise.all([loadVIP(), loadCodes()]);
+      return;
+    }
+
+    closeRejectForm();
+
+    msg(target.type + ' payment rejected. Rejection reason and contact information saved.');
+
+    if (target.type === 'VIP') {
+      await loadVIP();
+    } else {
+      await loadCodes();
+    }
   };
 
   // Create one request card
@@ -391,7 +617,6 @@ main {
     }
 
     const requests = data || [];
-
     const userIds = [...new Set(requests.map(r => r.user_id))];
 
     let profiles = [];
@@ -461,29 +686,12 @@ main {
           await loadVIP();
         },
 
-        onReject: async event => {
-
-          if (!confirm('Reject this VIP request?')) return;
-
-          const button = event.currentTarget;
-          button.disabled = true;
-
-          const { error } = await db
-            .from('vip_payment_requests')
-            .update({ status: 'rejected' })
-            .eq('id', r.id)
-            .eq('status', 'pending');
-
-          if (error) {
-            msg(error.message);
-            button.disabled = false;
-            return;
-          }
-
-          msg('VIP request rejected.');
-
-          await loadVIP();
-        }
+        onReject: () => openRejectForm({
+          id: r.id,
+          table: 'vip_payment_requests',
+          type: 'VIP',
+          heading: 'VIP Membership Payment'
+        })
 
       });
 
@@ -594,29 +802,12 @@ main {
           await loadCodes();
         },
 
-        onReject: async event => {
-
-          if (!confirm('Reject this purchase?')) return;
-
-          const button = event.currentTarget;
-          button.disabled = true;
-
-          const { error } = await db
-            .from('code_purchases')
-            .update({ status: 'rejected' })
-            .eq('id', r.id)
-            .eq('status', 'pending');
-
-          if (error) {
-            msg(error.message);
-            button.disabled = false;
-            return;
-          }
-
-          msg('Individual code purchase rejected.');
-
-          await loadCodes();
-        }
+        onReject: () => openRejectForm({
+          id: r.id,
+          table: 'code_purchases',
+          type: 'Individual Code',
+          heading: code?.match_title || 'Individual Code Purchase'
+        })
 
       });
 
