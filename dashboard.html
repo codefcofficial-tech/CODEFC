@@ -637,6 +637,7 @@ async function loadNotifications() {
   });
 }
 
+
 async function openNotification(notification, button) {
   setText("detailTitle", notification.title);
   setText("detailMessage", notification.message);
@@ -648,14 +649,40 @@ async function openNotification(notification, button) {
   contactSection.hidden = !notification.contact_info;
 
   setText("detailReason", notification.rejection_reason || "");
-  setText("detailContact", notification.contact_info || "");
+
+  const contactElement = $("detailContact");
+  contactElement.replaceChildren();
+
+  const contact = (notification.contact_info || "").trim();
+
+  if (contact) {
+    const link = document.createElement("a");
+
+    link.textContent = contact;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    if (/^https?:\/\//i.test(contact)) {
+      link.href = contact;
+    } else if (/^\+?[\d\s().-]{7,}$/.test(contact)) {
+      link.href = "tel:" + contact.replace(/[^\d+]/g, "");
+      link.removeAttribute("target");
+      link.removeAttribute("rel");
+    }
+
+    if (link.href) {
+      contactElement.appendChild(link);
+    } else {
+      contactElement.textContent = contact;
+    }
+  }
 
   $("notificationDetail").classList.add("open");
 
   if (!notification.is_read) {
     const { error } = await db
       .from("customer_notifications")
-      .update({ is_read:true })
+      .update({ is_read: true })
       .eq("id", notification.id)
       .eq("user_id", currentUser.id);
 
@@ -667,7 +694,9 @@ async function openNotification(notification, button) {
       await loadNotifications();
     }
   }
+  
 }
+
 
 $("notificationBell").addEventListener("click", async () => {
   const panel = $("notificationPanel");
