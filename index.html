@@ -415,8 +415,8 @@
   <!-- FOOTER -->
   <footer class="footer">
 
-    <a href="#home" class="logo">
-      CODE<span>FC</span><i>.</i>
+    <a href="#home" class="logo" id="founderVaultTrigger">
+  CODE<span>FC</span><i>.</i>
     </a>
 
     <p>Sports codes. Creative possibilities.</p>
@@ -646,7 +646,37 @@
     }
   }
 
-  loadFreeCodes();
+    loadFreeCodes();
+  </script>
+
+  <!-- PRIVATE FOUNDER VAULT ENTRANCE -->
+  <script>
+  (function () {
+    const trigger = document.getElementById("founderVaultTrigger");
+
+    if (!trigger) return;
+
+    let tapCount = 0;
+    let resetTimer = null;
+
+    trigger.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      tapCount++;
+
+      clearTimeout(resetTimer);
+
+      if (tapCount >= 5) {
+        tapCount = 0;
+        window.location.href = "founder-vault.html";
+        return;
+      }
+
+      resetTimer = setTimeout(function () {
+        tapCount = 0;
+      }, 3000);
+    });
+  })();
   </script>
 
 </body>
