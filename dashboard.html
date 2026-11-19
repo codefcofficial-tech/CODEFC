@@ -8,287 +8,398 @@
 <title>My Dashboard | CODEFC</title>
 
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing:border-box; margin:0; padding:0; }
 
 body {
-  background: #080B08;
-  color: #F5F5F5;
-  font-family: Arial, sans-serif;
-  min-height: 100vh;
+  background:#080B08;
+  color:#F5F5F5;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
 }
 
 header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 6%;
-  border-bottom: 1px solid #202820;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 6%;
+  border-bottom:1px solid #202820;
 }
 
 .logo {
-  font-size: 23px;
-  font-weight: 900;
-  color: #39FF14;
-  letter-spacing: 1px;
+  font-size:23px;
+  font-weight:900;
+  color:#39FF14;
+  letter-spacing:1px;
 }
 
 .logout {
-  background: transparent;
-  border: 1px solid #343D34;
-  color: white;
-  padding: 9px 15px;
-  border-radius: 8px;
-  cursor: pointer;
+  background:transparent;
+  border:1px solid #343D34;
+  color:white;
+  padding:9px 15px;
+  border-radius:8px;
+  cursor:pointer;
 }
 
 main {
-  max-width: 1050px;
-  margin: auto;
-  padding: 30px 5%;
+  max-width:1050px;
+  margin:auto;
+  padding:30px 5%;
 }
 
 .welcome {
-  margin-bottom: 25px;
+  margin-bottom:25px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
 }
 
 .welcome h1 {
-  font-size: 27px;
-  margin-bottom: 8px;
+  font-size:27px;
+  margin-bottom:8px;
 }
 
-.muted {
-  color: #929B92;
-  font-size: 13px;
+.muted { color:#929B92; font-size:13px; }
+
+.notification-button {
+  position:relative;
+  flex-shrink:0;
+  width:47px;
+  height:47px;
+  background:#111811;
+  border:1px solid #344334;
+  border-radius:12px;
+  color:white;
+  font-size:23px;
+  cursor:pointer;
+}
+
+.notification-dot {
+  position:absolute;
+  top:7px;
+  right:7px;
+  width:10px;
+  height:10px;
+  background:#FF4545;
+  border:2px solid #111811;
+  border-radius:50%;
+  display:none;
+}
+
+.notification-dot.show { display:block; }
+
+.notification-panel {
+  display:none;
+  margin-bottom:22px;
+}
+
+.notification-panel.open { display:block; }
+
+.notification-heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.notification-heading h3 { font-size:16px; }
+
+.notification-list {
+  max-height:350px;
+  overflow-y:auto;
+}
+
+.notification-item {
+  width:100%;
+  display:block;
+  text-align:left;
+  background:#080F08;
+  border:1px solid #263A26;
+  border-radius:9px;
+  padding:13px;
+  margin-top:9px;
+  color:white;
+  cursor:pointer;
+}
+
+.notification-item.unread {
+  border-left:3px solid #39FF14;
+  background:#101B10;
+}
+
+.notification-item h4 {
+  font-size:13px;
+  margin-bottom:7px;
+}
+
+.notification-item p {
+  font-size:12px;
+  color:#A0AAA0;
+  line-height:1.5;
+}
+
+.notification-item small {
+  display:block;
+  color:#778277;
+  font-size:10px;
+  margin-top:8px;
+}
+
+.notification-detail {
+  display:none;
+  background:#080F08;
+  border:1px solid #344334;
+  border-radius:10px;
+  padding:15px;
+  margin-top:14px;
+}
+
+.notification-detail.open { display:block; }
+
+.notification-detail h4 {
+  font-size:15px;
+  margin-bottom:12px;
+}
+
+.notification-detail p {
+  font-size:13px;
+  color:#C4CCC4;
+  line-height:1.7;
+  overflow-wrap:anywhere;
+  margin-top:8px;
+}
+
+.notification-detail .detail-label {
+  color:#39FF14;
+  font-size:11px;
+  font-weight:bold;
+  margin-top:15px;
+}
+
+.notification-close {
+  background:transparent;
+  border:1px solid #465046;
+  color:white;
+  padding:8px 12px;
+  border-radius:7px;
+  margin-top:15px;
+  cursor:pointer;
 }
 
 .stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-bottom: 22px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+  margin-bottom:22px;
 }
 
 .card {
-  background: #111811;
-  border: 1px solid #263126;
-  border-radius: 13px;
-  padding: 20px;
-  margin-bottom: 18px;
-  min-width: 0;
+  background:#111811;
+  border:1px solid #263126;
+  border-radius:13px;
+  padding:20px;
+  margin-bottom:18px;
+  min-width:0;
 }
 
-.card h3 {
-  font-size: 15px;
-  margin-bottom: 14px;
-}
+.card h3 { font-size:15px; margin-bottom:14px; }
 
 .stat-number {
-  font-size: 27px;
-  font-weight: bold;
-  margin: 12px 0 5px;
+  font-size:27px;
+  font-weight:bold;
+  margin:12px 0 5px;
 }
 
 #vipShortStatus {
-  font-size: 17px;
-  overflow-wrap: anywhere;
+  font-size:17px;
+  overflow-wrap:anywhere;
 }
 
 .vip-status {
-  font-size: 17px;
-  font-weight: bold;
-  margin-bottom: 8px;
+  font-size:17px;
+  font-weight:bold;
+  margin-bottom:8px;
 }
 
-.green { color: #39FF14; }
-.yellow { color: #FFC857; }
-.red { color: #FF6868; }
+.green { color:#39FF14; }
+.yellow { color:#FFC857; }
+.red { color:#FF6868; }
 
 .action {
-  display: block;
-  width: 100%;
-  padding: 13px;
-  margin-top: 16px;
-  background: #39FF14;
-  color: #071007;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  display:block;
+  width:100%;
+  padding:13px;
+  margin-top:16px;
+  background:#39FF14;
+  color:#071007;
+  font-weight:bold;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-.action:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
+.action:disabled { opacity:.5; cursor:not-allowed; }
+
 .action.vip-locked {
-  background: #777777;
-  color: #FFFFFF;
-  opacity: 1;
-  cursor: not-allowed;
-  border: 1px solid #888888;
+  background:#777;
+  color:white;
+  opacity:1;
+  cursor:not-allowed;
+  border:1px solid #888;
 }
+
 .profile-info {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
 }
 
 .info-label {
-  color: #929B92;
-  font-size: 12px;
-  margin-bottom: 6px;
+  color:#929B92;
+  font-size:12px;
+  margin-bottom:6px;
 }
 
 .info-value {
-  font-size: 14px;
-  overflow-wrap: anywhere;
+  font-size:14px;
+  overflow-wrap:anywhere;
 }
 
 .purchase {
-  border-top: 1px solid #263126;
-  padding: 15px 0;
+  border-top:1px solid #263126;
+  padding:15px 0;
 }
 
-.purchase:first-of-type {
-  border-top: none;
-}
-
-.purchase h4 {
-  font-size: 14px;
-  margin-bottom: 7px;
-}
+.purchase:first-of-type { border-top:none; }
+.purchase h4 { font-size:14px; margin-bottom:7px; }
 
 .purchase p {
-  color: #A0AAA0;
-  font-size: 12px;
-  margin-top: 5px;
+  color:#A0AAA0;
+  font-size:12px;
+  margin-top:5px;
 }
 
 .empty {
-  color: #929B92;
-  font-size: 13px;
-  padding: 12px 0;
+  color:#929B92;
+  font-size:13px;
+  padding:12px 0;
 }
 
-/* VIP CODE FEED */
-
 .vip-code-feed {
-  margin-top: 14px;
-  max-height: 290px;
-  overflow-y: auto;
+  margin-top:14px;
+  max-height:290px;
+  overflow-y:auto;
 }
 
 .vip-code-item {
-  background: #080F08;
-  border: 1px solid #263A26;
-  border-radius: 9px;
-  padding: 12px;
-  margin-top: 10px;
+  background:#080F08;
+  border:1px solid #263A26;
+  border-radius:9px;
+  padding:12px;
+  margin-top:10px;
 }
 
 .vip-code-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 9px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:9px;
 }
 
 .vip-code-label {
-  color: #39FF14;
-  font-size: 11px;
-  font-weight: bold;
+  color:#39FF14;
+  font-size:11px;
+  font-weight:bold;
 }
 
 .vip-code-badge {
-  font-size: 10px;
-  font-weight: bold;
+  font-size:10px;
+  font-weight:bold;
 }
 
 .vip-code-title {
-  font-size: 13px;
-  font-weight: bold;
-  margin-bottom: 6px;
-  overflow-wrap: anywhere;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:6px;
+  overflow-wrap:anywhere;
 }
 
 .vip-code-meta {
-  font-size: 11px;
-  color: #929B92;
-  margin-top: 4px;
+  font-size:11px;
+  color:#929B92;
+  margin-top:4px;
 }
 
 .vip-countdown {
-  color: #39FF14;
-  font-size: 15px;
-  font-weight: bold;
-  margin-top: 11px;
+  color:#39FF14;
+  font-size:15px;
+  font-weight:bold;
+  margin-top:11px;
 }
 
 .vip-booking-code {
-  background: #142014;
-  border: 1px dashed #39FF14;
-  border-radius: 6px;
-  padding: 10px;
-  margin-top: 10px;
-  font-size: 13px;
-  font-weight: bold;
-  overflow-wrap: anywhere;
-  user-select: text;
+  background:#142014;
+  border:1px dashed #39FF14;
+  border-radius:6px;
+  padding:10px;
+  margin-top:10px;
+  font-size:13px;
+  font-weight:bold;
+  overflow-wrap:anywhere;
+  user-select:text;
 }
 
 .vip-copy {
-  width: 100%;
-  padding: 9px;
-  margin-top: 9px;
-  background: #39FF14;
-  color: #071007;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
+  width:100%;
+  padding:9px;
+  margin-top:9px;
+  background:#39FF14;
+  color:#071007;
+  border:none;
+  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 .vip-expired-message {
-  margin-top: 10px;
-  padding: 10px;
-  background: #1B1010;
-  border-radius: 7px;
-  color: #FF8585;
-  font-size: 12px;
-  line-height: 1.6;
+  margin-top:10px;
+  padding:10px;
+  background:#1B1010;
+  border-radius:7px;
+  color:#FF8585;
+  font-size:12px;
+  line-height:1.6;
 }
 
 .visit-link {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  background: #172217;
-  color: #39FF14;
-  padding: 10px;
-  border-radius: 7px;
-  margin-top: 10px;
-  font-size: 11px;
-  font-weight: bold;
+  display:block;
+  text-align:center;
+  text-decoration:none;
+  background:#172217;
+  color:#39FF14;
+  padding:10px;
+  border-radius:7px;
+  margin-top:10px;
+  font-size:11px;
+  font-weight:bold;
 }
 
 footer {
-  text-align: center;
-  padding: 25px;
-  color: #697369;
-  font-size: 12px;
+  text-align:center;
+  padding:25px;
+  color:#697369;
+  font-size:12px;
 }
 
-@media(max-width: 500px) {
-  main { padding: 25px 4%; }
-  .stats { gap: 10px; }
-  .card { padding: 15px; }
-  .profile-info { grid-template-columns: 1fr; }
-  .welcome h1 { font-size: 23px; }
+@media(max-width:500px) {
+  main { padding:25px 4%; }
+  .stats { gap:10px; }
+  .card { padding:15px; }
+  .profile-info { grid-template-columns:1fr; }
+  .welcome h1 { font-size:23px; }
 }
 </style>
 </head>
@@ -302,84 +413,107 @@ footer {
 
 <main>
 
-  <section class="welcome">
+<section class="welcome">
+  <div>
     <h1>Welcome back, <span id="userName">...</span> 👋</h1>
     <p class="muted">Your personal CODEFC dashboard.</p>
-  </section>
+  </div>
 
-  <section class="stats">
+  <button class="notification-button"
+          id="notificationBell"
+          aria-label="Open notifications"
+          aria-expanded="false">
+    ♧
+    <span class="notification-dot" id="notificationDot"></span>
+  </button>
+</section>
 
-    <div class="card">
-      <div class="muted">Purchased Codes</div>
-      <div class="stat-number" id="purchaseCount">—</div>
-      <div class="muted">Your purchases</div>
+<section class="card notification-panel" id="notificationPanel">
+  <div class="notification-heading">
+    <h3>Notification Centre</h3>
+    <span class="muted" id="notificationCount">0 notifications</span>
+  </div>
+
+  <div class="notification-list" id="notificationList">
+    <p class="empty">Loading notifications...</p>
+  </div>
+
+  <div class="notification-detail" id="notificationDetail">
+    <h4 id="detailTitle"></h4>
+    <p id="detailMessage"></p>
+
+    <div id="reasonSection" hidden>
+      <p class="detail-label">REJECTION REASON</p>
+      <p id="detailReason"></p>
     </div>
 
-    <!-- VIP CODE BOX -->
-    <div class="card">
-      <div class="muted">VIP Membership</div>
-
-      <div class="stat-number" id="vipShortStatus">—</div>
-
-      <div class="muted" id="vipDays"></div>
-
-      <div class="vip-code-feed" id="vipCodeFeed">
-        <p class="empty">Checking VIP access...</p>
-      </div>
+    <div id="contactSection" hidden>
+      <p class="detail-label">CONTACT INFORMATION</p>
+      <p id="detailContact"></p>
     </div>
 
-  </section>
-
-  <!-- FULL VIP MEMBERSHIP SECTION -->
-  <section class="card">
-    <h3>VIP Membership</h3>
-
-    <div class="vip-status" id="vipStatus">
-      Checking membership...
-    </div>
-
-    <p class="muted" id="vipExpiry"></p>
-
-    <button class="action" id="vipButton" hidden>
-      Unlock VIP Membership
+    <button class="notification-close" id="closeNotificationDetail">
+      Close details
     </button>
-  </section>
+  </div>
+</section>
 
-  <section class="card">
-    <h3>My Purchased Codes</h3>
+<section class="stats">
 
-    <div id="purchasesList">
-      <p class="empty">Loading purchases...</p>
+  <div class="card">
+    <div class="muted">Purchased Codes</div>
+    <div class="stat-number" id="purchaseCount">—</div>
+    <div class="muted">Your purchases</div>
+  </div>
+
+  <div class="card">
+    <div class="muted">VIP Membership</div>
+    <div class="stat-number" id="vipShortStatus">—</div>
+    <div class="muted" id="vipDays"></div>
+    <div class="vip-code-feed" id="vipCodeFeed">
+      <p class="empty">Checking VIP access...</p>
     </div>
-  </section>
+  </div>
 
-  <section class="card">
-    <h3>Account Information</h3>
+</section>
 
-    <div class="profile-info">
+<section class="card">
+  <h3>VIP Membership</h3>
+  <div class="vip-status" id="vipStatus">Checking membership...</div>
+  <p class="muted" id="vipExpiry"></p>
+  <button class="action" id="vipButton" hidden>
+    Unlock VIP Membership
+  </button>
+</section>
 
-      <div>
-        <div class="info-label">Full Name</div>
-        <div class="info-value" id="profileName">Loading...</div>
-      </div>
+<section class="card">
+  <h3>My Purchased Codes</h3>
+  <div id="purchasesList">
+    <p class="empty">Loading purchases...</p>
+  </div>
+</section>
 
-      <div>
-        <div class="info-label">Phone Number</div>
-        <div class="info-value" id="profilePhone">Loading...</div>
-      </div>
-
-      <div>
-        <div class="info-label">Email Address</div>
-        <div class="info-value" id="profileEmail">Loading...</div>
-      </div>
-
-      <div>
-        <div class="info-label">Account Created</div>
-        <div class="info-value" id="profileDate">Loading...</div>
-      </div>
-
+<section class="card">
+  <h3>Account Information</h3>
+  <div class="profile-info">
+    <div>
+      <div class="info-label">Full Name</div>
+      <div class="info-value" id="profileName">Loading...</div>
     </div>
-  </section>
+    <div>
+      <div class="info-label">Phone Number</div>
+      <div class="info-value" id="profilePhone">Loading...</div>
+    </div>
+    <div>
+      <div class="info-label">Email Address</div>
+      <div class="info-value" id="profileEmail">Loading...</div>
+    </div>
+    <div>
+      <div class="info-label">Account Created</div>
+      <div class="info-value" id="profileDate">Loading...</div>
+    </div>
+  </div>
+</section>
 
 </main>
 
@@ -394,12 +528,15 @@ footer {
 
 <script>
 
+  
 const db = window.CODEFC_DB;
 const $ = id => document.getElementById(id);
 
 let currentUser = null;
 let countdownTimer = null;
 let vipRefreshTimer = null;
+let notificationRefreshTimer = null;
+let notificationsLoaded = false;
 
 function setText(id, value) {
   $(id).textContent = value;
@@ -407,11 +544,8 @@ function setText(id, value) {
 
 function formatDate(value) {
   if (!value) return "Not available";
-
   return new Date(value).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
+    day:"numeric", month:"short", year:"numeric"
   });
 }
 
@@ -422,30 +556,148 @@ function money(value) {
 function showFeedMessage(message) {
   const feed = $("vipCodeFeed");
   feed.replaceChildren();
-
   const p = document.createElement("p");
   p.className = "empty";
   p.textContent = message;
-
   feed.appendChild(p);
 }
 
+// ===================================
+// NOTIFICATION CENTRE
+// ===================================
+
+function updateNotificationDot(notifications) {
+  const hasUnread = (notifications || []).some(n => !n.is_read);
+  $("notificationDot").classList.toggle("show", hasUnread);
+}
+
+async function loadNotifications() {
+  if (!currentUser) return;
+
+  const list = $("notificationList");
+
+  const { data, error } = await db
+    .from("customer_notifications")
+    .select("id, notification_type, title, message, rejection_reason, contact_info, is_read, created_at")
+    .eq("user_id", currentUser.id)
+    .order("created_at", { ascending:false })
+    .limit(50);
+
+  if (error) {
+    console.error("Notification loading error:", error);
+    list.textContent = "Unable to load notifications. Please try again.";
+    return;
+  }
+
+  const notifications = data || [];
+  notificationsLoaded = true;
+
+  updateNotificationDot(notifications);
+
+  setText(
+    "notificationCount",
+    notifications.length + (notifications.length === 1 ? " notification" : " notifications")
+  );
+
+  list.replaceChildren();
+
+  if (!notifications.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty";
+    empty.textContent = "You have no notifications yet.";
+    list.appendChild(empty);
+    return;
+  }
+
+  notifications.forEach(notification => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "notification-item" +
+      (notification.is_read ? "" : " unread");
+
+    const title = document.createElement("h4");
+    title.textContent =
+      (notification.is_read ? "" : "● ") +
+      notification.title;
+
+    const message = document.createElement("p");
+    message.textContent = notification.message;
+
+    const date = document.createElement("small");
+    date.textContent = new Date(notification.created_at)
+      .toLocaleString("en-GB");
+
+    button.append(title, message, date);
+
+    button.addEventListener("click", () => {
+      openNotification(notification, button);
+    });
+
+    list.appendChild(button);
+  });
+}
+
+async function openNotification(notification, button) {
+  setText("detailTitle", notification.title);
+  setText("detailMessage", notification.message);
+
+  const reasonSection = $("reasonSection");
+  const contactSection = $("contactSection");
+
+  reasonSection.hidden = !notification.rejection_reason;
+  contactSection.hidden = !notification.contact_info;
+
+  setText("detailReason", notification.rejection_reason || "");
+  setText("detailContact", notification.contact_info || "");
+
+  $("notificationDetail").classList.add("open");
+
+  if (!notification.is_read) {
+    const { error } = await db
+      .from("customer_notifications")
+      .update({ is_read:true })
+      .eq("id", notification.id)
+      .eq("user_id", currentUser.id);
+
+    if (error) {
+      console.error("Mark notification read error:", error);
+    } else {
+      notification.is_read = true;
+      if (button) button.classList.remove("unread");
+      await loadNotifications();
+    }
+  }
+}
+
+$("notificationBell").addEventListener("click", async () => {
+  const panel = $("notificationPanel");
+  const opening = !panel.classList.contains("open");
+
+  panel.classList.toggle("open", opening);
+  $("notificationBell").setAttribute("aria-expanded", String(opening));
+
+  if (opening) {
+    $("notificationDetail").classList.remove("open");
+    await loadNotifications();
+  }
+});
+
+$("closeNotificationDetail").addEventListener("click", () => {
+  $("notificationDetail").classList.remove("open");
+});
 
 // ===================================
 // AUTHENTICATION
 // ===================================
 
 async function loadDashboard() {
-
   if (!db || !db.auth) {
     window.location.replace("login.html");
     return;
   }
 
   try {
-
     const { data, error } = await db.auth.getSession();
-
     if (error) throw error;
 
     const session = data.session;
@@ -457,46 +709,36 @@ async function loadDashboard() {
 
     currentUser = session.user;
 
-    setText(
-      "profileEmail",
-      session.user.email || "Not available"
-    );
+    setText("profileEmail", session.user.email || "Not available");
 
     await Promise.all([
       loadProfile(session.user),
       loadPurchases(session.user),
-      loadVIP(session.user)
+      loadVIP(session.user),
+      loadNotifications()
     ]);
 
-    // Check for new VIP codes periodically.
     vipRefreshTimer = setInterval(() => {
-      if (currentUser) {
-        loadVIP(currentUser);
-      }
+      if (currentUser) loadVIP(currentUser);
     }, 30000);
 
-    // Update countdowns every second.
-    countdownTimer = setInterval(
-      updateVIPCountdowns,
-      1000
-    );
+    notificationRefreshTimer = setInterval(() => {
+      if (currentUser) loadNotifications();
+    }, 30000);
+
+    countdownTimer = setInterval(updateVIPCountdowns, 1000);
 
   } catch (error) {
-
     console.error("Dashboard loading error:", error);
-
     alert("Unable to load your dashboard. Please refresh.");
-
   }
 }
-
 
 // ===================================
 // PROFILE
 // ===================================
 
 async function loadProfile(user) {
-
   const { data, error } = await db
     .from("profiles")
     .select("id, full_name, phone, created_at")
@@ -504,109 +746,94 @@ async function loadProfile(user) {
     .maybeSingle();
 
   if (error) {
-
     console.error("Profile error:", error);
-
     setText("profileName", "Unable to load");
     setText("profilePhone", "Unable to load");
-
     return;
   }
 
   if (!data) {
-
     const name = user.user_metadata?.full_name || "User";
-
     setText("profileName", name);
     setText("userName", name.split(" ")[0]);
     setText("profilePhone", "Not available");
     setText("profileDate", formatDate(user.created_at));
-
     return;
   }
 
   const name = data.full_name || "User";
-
   setText("userName", name.split(" ")[0]);
   setText("profileName", name);
   setText("profilePhone", data.phone || "Not available");
   setText("profileDate", formatDate(data.created_at));
-
 }
-
 
 // ===================================
 // PURCHASED CODES
 // ===================================
 
 async function loadPurchases(user) {
-
   const container = $("purchasesList");
 
   const { data: purchases, error } = await db
     .from("code_purchases")
     .select("id, code_id, amount_ngn, status, created_at")
     .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending:false });
 
   if (error) {
-
     console.error("Purchase error:", error);
     container.textContent = "Unable to load purchases.";
-
     return;
   }
 
   setText("purchaseCount", (purchases || []).length);
 
   if (!purchases || !purchases.length) {
-
     container.textContent = "You have not purchased any codes yet.";
-
     return;
   }
 
-  const codeIds = [
-    ...new Set(purchases.map(p => p.code_id))
-  ];
+  const codeIds = [...new Set(purchases.map(p => p.code_id))];
 
   const { data: codes, error: codeError } = await db
     .from("codes")
     .select("id, platform, match_title, competition, price_ngn, status, expires_at")
     .in("id", codeIds);
 
-  if (codeError) {
-    console.error("Codes error:", codeError);
-  }
+  if (codeError) console.error("Codes error:", codeError);
 
   const codeMap = new Map(
     (codes || []).map(code => [String(code.id), code])
   );
 
-  // Secret access is requested only for approved purchases. Supabase RLS
-  // remains the final authority and blocks unapproved buyers.
   const approvedIds = purchases
     .filter(p => p.status === "approved")
     .map(p => p.code_id);
+
   let secretMap = new Map();
+
   if (approvedIds.length) {
     const { data: secrets, error: secretError } = await db
       .from("code_secrets")
       .select("code_id, booking_code")
       .in("code_id", approvedIds);
+
     if (secretError) {
       console.error("Purchased code secret error:", secretError);
     } else {
-      secretMap = new Map((secrets || []).map(secret => [String(secret.code_id), secret.booking_code]));
+      secretMap = new Map(
+        (secrets || []).map(secret => [
+          String(secret.code_id), secret.booking_code
+        ])
+      );
     }
   }
 
   container.replaceChildren();
 
   purchases.forEach(purchase => {
-
     const code = codeMap.get(String(purchase.code_id));
-
     const item = document.createElement("div");
     item.className = "purchase";
 
@@ -614,48 +841,49 @@ async function loadPurchases(user) {
     title.textContent = code?.match_title || "Betting code";
 
     const platform = document.createElement("p");
-
     platform.textContent =
-      (code?.platform || "Platform") +
-      " · " +
+      (code?.platform || "Platform") + " · " +
       (code?.competition || "Competition");
 
     const amount = document.createElement("p");
     amount.textContent = money(purchase.amount_ngn);
 
     const status = document.createElement("p");
-
     status.textContent =
       "Payment: " + String(purchase.status).toUpperCase();
 
     if (purchase.status === "approved") {
-
       status.className = "green";
       status.textContent += " · Access approved";
-
+    } else if (purchase.status === "rejected") {
+      status.className = "red";
+      status.textContent += " · Please check your notifications";
     } else {
-
       status.className = "yellow";
-
     }
 
     const date = document.createElement("p");
-    date.textContent =
-      "Purchased: " + formatDate(purchase.created_at);
+    date.textContent = "Purchased: " + formatDate(purchase.created_at);
 
     item.append(title, platform, amount, status, date);
 
-    const expiry = code?.expires_at ? new Date(code.expires_at).getTime() : 0;
+    const expiry = code?.expires_at
+      ? new Date(code.expires_at).getTime() : 0;
+
     const isExpired = !Number.isFinite(expiry) || expiry <= Date.now();
+
     if (purchase.status === "approved" && !isExpired) {
       const bookingCode = secretMap.get(String(purchase.code_id));
+
       if (bookingCode) {
         const codeBox = document.createElement("div");
         codeBox.className = "vip-booking-code";
         codeBox.textContent = bookingCode;
+
         const copy = document.createElement("button");
         copy.className = "vip-copy";
         copy.textContent = "COPY BOOKING CODE";
+
         copy.addEventListener("click", async () => {
           if (Date.now() >= expiry) {
             codeBox.textContent = "Booking code expired";
@@ -663,6 +891,7 @@ async function loadPurchases(user) {
             copy.textContent = "CODE EXPIRED";
             return;
           }
+
           try {
             await navigator.clipboard.writeText(bookingCode);
             copy.textContent = "COPIED ✓";
@@ -671,12 +900,15 @@ async function loadPurchases(user) {
             copy.textContent = "COPY FAILED";
           }
         });
+
         item.append(codeBox, copy);
       } else {
         const waiting = document.createElement("p");
-        waiting.textContent = "Your code is approved, but its secret is not available yet.";
+        waiting.textContent =
+          "Your code is approved, but its secret is not available yet.";
         item.appendChild(waiting);
       }
+
     } else if (purchase.status === "approved" && isExpired) {
       const expired = document.createElement("p");
       expired.className = "red";
@@ -685,40 +917,33 @@ async function loadPurchases(user) {
     }
 
     container.appendChild(item);
-
   });
-
-}
-
-
+          }
+  
+   
 // ===================================
 // VIP MEMBERSHIP
 // ===================================
 
 async function loadVIP(user) {
-
   const { data, error } = await db
     .from("vip_memberships")
     .select("id, amount_ngn, starts_at, expires_at, status")
     .eq("user_id", user.id)
-    .order("starts_at", { ascending: false })
+    .order("starts_at", { ascending:false })
     .limit(1)
     .maybeSingle();
 
   const button = $("vipButton");
 
   if (error) {
-
     console.error("VIP error:", error);
-
     showVIP("UNABLE TO CHECK", "", "", "");
     showFeedMessage("Unable to check VIP membership.");
-
     return;
   }
 
   if (!data) {
-
     const { data: pendingRequests, error: pendingError } = await db
       .from("vip_payment_requests")
       .select("id, created_at")
@@ -727,52 +952,40 @@ async function loadVIP(user) {
       .limit(1);
 
     if (!pendingError && pendingRequests && pendingRequests.length) {
-      showVIP("PAYMENT PENDING", "Your VIP transfer is awaiting Founder approval.", "", "");
-      showFeedMessage("Your VIP payment request has been received. Access will activate after payment verification.");
+      showVIP(
+        "PAYMENT PENDING",
+        "Your VIP transfer is awaiting Founder approval.",
+        "",
+        ""
+      );
+      showFeedMessage(
+        "Your VIP payment request has been received. Access will activate after payment verification."
+      );
       return;
     }
 
-    showVIP(
-      "NOT REGISTERED",
-      "",
-      "",
-      "Unlock VIP Membership"
-    );
-
-    showFeedMessage(
-      "VIP MEMBERS NOT YET REGISTERED"
-    );
-
+    showVIP("NOT REGISTERED", "", "", "Unlock VIP Membership");
+    showFeedMessage("VIP MEMBERS NOT YET REGISTERED");
     return;
   }
 
   if (data.status === "pending") {
-
     showVIP("PAYMENT PENDING", "", "", "");
-
-    showFeedMessage(
-      "Your VIP membership payment is awaiting approval."
-    );
-
+    showFeedMessage("Your VIP membership payment is awaiting approval.");
     return;
   }
 
   const now = Date.now();
-
   const start = data.starts_at
-    ? new Date(data.starts_at).getTime()
-    : NaN;
-
+    ? new Date(data.starts_at).getTime() : NaN;
   const expiry = data.expires_at
-    ? new Date(data.expires_at).getTime()
-    : NaN;
+    ? new Date(data.expires_at).getTime() : NaN;
 
   if (
     data.status !== "active" ||
     !Number.isFinite(start) ||
     !Number.isFinite(expiry)
   ) {
-
     showVIP(
       data.status === "expired" ? "EXPIRED" : "NOT REGISTERED",
       "",
@@ -785,78 +998,55 @@ async function loadVIP(user) {
         ? "Your VIP membership has expired. Renew to access new VIP codes."
         : "VIP MEMBERS NOT YET REGISTERED"
     );
-
     return;
   }
 
   if (expiry <= now) {
-
     showVIP(
       "EXPIRED",
       "Membership ended: " + formatDate(data.expires_at),
       "",
       "Renew VIP"
     );
-
-    showFeedMessage(
-      "Your VIP membership has expired. Renew to access VIP codes."
-    );
-
+    showFeedMessage("Your VIP membership has expired. Renew to access VIP codes.");
     return;
   }
 
   if (start > now) {
-
     showVIP(
       "UPCOMING",
       "Membership starts: " + formatDate(data.starts_at),
       "",
       ""
     );
-
-    showFeedMessage(
-      "Your VIP membership has not started yet."
-    );
-
+    showFeedMessage("Your VIP membership has not started yet.");
     return;
   }
 
-  const days = Math.ceil(
-    (expiry - now) / 86400000
-  );
+  const days = Math.ceil((expiry - now) / 86400000);
 
   if (days <= 5) {
-
-  showVIP(
-    "EXPIRING SOON",
-    "Expires: " + formatDate(data.expires_at),
-    days + " days left",
-    "VIP UNLOCKED"
-  );
-
-  $("vipStatus").className = "vip-status yellow";
-
-} else {
-
-  showVIP(
-    "VIP ACTIVE",
-    "Expires: " + formatDate(data.expires_at),
-    days + " days left",
-    "VIP UNLOCKED"
-  );
-
-  $("vipStatus").className = "vip-status green";
-
+    showVIP(
+      "EXPIRING SOON",
+      "Expires: " + formatDate(data.expires_at),
+      days + " days left",
+      "VIP UNLOCKED"
+    );
+    $("vipStatus").className = "vip-status yellow";
+  } else {
+    showVIP(
+      "VIP ACTIVE",
+      "Expires: " + formatDate(data.expires_at),
+      days + " days left",
+      "VIP UNLOCKED"
+    );
+    $("vipStatus").className = "vip-status green";
   }
 
-  // Only active members can load VIP codes.
   await loadVIPCodes();
-
 }
 
-
 function showVIP(status, expiry, days, buttonText) {
-
   setText("vipStatus", status);
   setText("vipShortStatus", status);
   setText("vipExpiry", expiry);
@@ -867,47 +1057,36 @@ function showVIP(status, expiry, days, buttonText) {
     (
       status === "VIP ACTIVE" ? "green" :
       status === "EXPIRED" || status === "NOT REGISTERED"
-        ? "red"
-        : "yellow"
+        ? "red" : "yellow"
     );
 
   const button = $("vipButton");
 
   const active =
-    status === "VIP ACTIVE" ||
-    status === "EXPIRING SOON";
+    status === "VIP ACTIVE" || status === "EXPIRING SOON";
 
   if (active) {
-
     button.textContent = "VIP UNLOCKED";
     button.hidden = false;
     button.disabled = true;
     button.classList.add("vip-locked");
-
   } else if (buttonText) {
-
     button.textContent = buttonText;
     button.hidden = false;
     button.disabled = false;
     button.classList.remove("vip-locked");
-
   } else {
-
     button.hidden = true;
     button.disabled = false;
     button.classList.remove("vip-locked");
-
   }
-
 }
-
 
 // ===================================
 // VIP CODE FEED
 // ===================================
 
 async function loadVIPCodes() {
-
   const feed = $("vipCodeFeed");
 
   const { data: codes, error } = await db
@@ -924,49 +1103,35 @@ async function loadVIPCodes() {
     `)
     .eq("access_type", "vip")
     .in("status", ["active", "expired"])
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending:false })
     .limit(10);
 
   if (error) {
-
     console.error("VIP codes error:", error);
-
-    showFeedMessage(
-      "Unable to load VIP codes. Please try again."
-    );
-
+    showFeedMessage("Unable to load VIP codes. Please try again.");
     return;
   }
 
   if (!codes || !codes.length) {
-
     showFeedMessage(
       "No VIP booking codes have been published yet. Check back soon!"
     );
-
     return;
   }
 
   const now = Date.now();
 
   const availableCodes = codes.filter(code => {
-
     const expiry = code.expires_at
-      ? new Date(code.expires_at).getTime()
-      : 0;
+      ? new Date(code.expires_at).getTime() : 0;
 
-    return (
-      code.status === "active" &&
-      Number.isFinite(expiry) &&
-      expiry > now
-    );
-
+    return code.status === "active" &&
+      Number.isFinite(expiry) && expiry > now;
   });
 
   let secrets = [];
 
   if (availableCodes.length) {
-
     const ids = availableCodes.map(code => code.id);
 
     const { data, error: secretError } = await db
@@ -975,28 +1140,21 @@ async function loadVIPCodes() {
       .in("code_id", ids);
 
     if (secretError) {
-
       console.error("VIP secret error:", secretError);
-
     } else {
-
       secrets = data || [];
-
     }
-
   }
 
   const secretMap = new Map(
     secrets.map(secret => [
-      String(secret.code_id),
-      secret.booking_code
+      String(secret.code_id), secret.booking_code
     ])
   );
 
   feed.replaceChildren();
 
   codes.forEach(code => {
-
     const item = document.createElement("div");
     item.className = "vip-code-item";
 
@@ -1016,19 +1174,15 @@ async function loadVIPCodes() {
 
     const meta = document.createElement("div");
     meta.className = "vip-code-meta";
-
     meta.textContent =
-      (code.platform || "Platform") +
-      " · " +
+      (code.platform || "Platform") + " · " +
       (code.competition || "Competition");
 
     top.append(label, badge);
-
     item.append(top, title, meta);
 
     const expiry = code.expires_at
-      ? new Date(code.expires_at).getTime()
-      : 0;
+      ? new Date(code.expires_at).getTime() : 0;
 
     const isExpired =
       code.status === "expired" ||
@@ -1036,136 +1190,97 @@ async function loadVIPCodes() {
       expiry <= Date.now();
 
     if (isExpired) {
-
       badge.textContent = "EXPIRED";
       badge.style.color = "#FF6868";
 
-      const expiredMessage =
-        document.createElement("div");
-
+      const expiredMessage = document.createElement("div");
       expiredMessage.className = "vip-expired-message";
-
       expiredMessage.textContent =
         "This VIP code has expired. Visit again for our next booking code.";
 
       const visit = document.createElement("a");
-
       visit.href = "index.html";
       visit.className = "visit-link";
       visit.textContent = "VISIT AGAIN FOR NEXT CODE";
 
       item.append(expiredMessage, visit);
-
     } else {
-
       badge.textContent = "ACTIVE";
       badge.style.color = "#39FF14";
 
       const countdown = document.createElement("div");
-
       countdown.className = "vip-countdown";
-
       countdown.dataset.expiry = expiry;
       countdown.textContent = "Loading countdown...";
-
       item.appendChild(countdown);
 
       const bookingCode = secretMap.get(String(code.id));
 
       if (bookingCode) {
-
         const codeBox = document.createElement("div");
-
         codeBox.className = "vip-booking-code";
         codeBox.textContent = bookingCode;
 
         const copy = document.createElement("button");
-
         copy.className = "vip-copy";
         copy.textContent = "COPY BOOKING CODE";
 
         copy.addEventListener("click", async () => {
-
           if (Date.now() >= expiry) {
-
             copy.disabled = true;
             copy.textContent = "CODE EXPIRED";
-
             return;
           }
 
           try {
-
             await navigator.clipboard.writeText(bookingCode);
-
             copy.textContent = "COPIED ✓";
 
             setTimeout(() => {
               copy.textContent = "COPY BOOKING CODE";
             }, 2000);
-
           } catch (error) {
-
             console.error("Copy error:", error);
-
             copy.textContent = "COPY FAILED";
-
           }
-
         });
 
         item.append(codeBox, copy);
-
       } else {
-
-        const unavailable =
-          document.createElement("p");
-
+        const unavailable = document.createElement("p");
         unavailable.className = "vip-code-meta";
-
         unavailable.textContent =
           "Booking code is temporarily unavailable.";
-
         item.appendChild(unavailable);
-
       }
-
     }
 
     feed.appendChild(item);
-
   });
 
   updateVIPCountdowns();
-
 }
 
-
-//===================================
+// ===================================
 // VIP COUNTDOWN
 // ===================================
 
 function updateVIPCountdowns() {
-
   const countdowns = document.querySelectorAll(
     ".vip-countdown[data-expiry]"
   );
 
   countdowns.forEach(countdown => {
-
     const expiry = Number(countdown.dataset.expiry);
-
     const remaining = expiry - Date.now();
 
     if (remaining <= 0) {
-
       countdown.textContent = "EXPIRED";
       countdown.style.color = "#FF6868";
 
       const item = countdown.closest(".vip-code-item");
 
       if (item) {
-
         const badge = item.querySelector(".vip-code-badge");
 
         if (badge) {
@@ -1176,9 +1291,7 @@ function updateVIPCountdowns() {
         const codeBox = item.querySelector(".vip-booking-code");
         const copy = item.querySelector(".vip-copy");
 
-        if (codeBox) {
-          codeBox.textContent = "Booking code expired";
-        }
+        if (codeBox) codeBox.textContent = "Booking code expired";
 
         if (copy) {
           copy.disabled = true;
@@ -1186,45 +1299,29 @@ function updateVIPCountdowns() {
         }
 
         if (!item.querySelector(".vip-expired-message")) {
-
           const message = document.createElement("div");
-
           message.className = "vip-expired-message";
-
           message.textContent =
             "This VIP code has expired. Visit again for our next booking code.";
 
           const visit = document.createElement("a");
-
           visit.href = "index.html";
           visit.className = "visit-link";
           visit.textContent = "VISIT AGAIN FOR NEXT CODE";
 
           item.append(message, visit);
-
         }
-
       }
-
       return;
     }
 
     const totalSeconds = Math.floor(remaining / 1000);
-
     const days = Math.floor(totalSeconds / 86400);
-
-    const hours = Math.floor(
-      (totalSeconds % 86400) / 3600
-    );
-
-    const minutes = Math.floor(
-      (totalSeconds % 3600) / 60
-    );
-
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    const pad = value =>
-      String(value).padStart(2, "0");
+    const pad = value => String(value).padStart(2, "0");
 
     countdown.textContent =
       "EXPIRES IN: " +
@@ -1232,18 +1329,14 @@ function updateVIPCountdowns() {
       pad(hours) + ":" +
       pad(minutes) + ":" +
       pad(seconds);
-
   });
-
 }
 
-
-//===================================
+// ===================================
 // LOGOUT
 // ===================================
 
 $("logoutBtn").addEventListener("click", async () => {
-
   const button = $("logoutBtn");
 
   button.disabled = true;
@@ -1251,23 +1344,19 @@ $("logoutBtn").addEventListener("click", async () => {
 
   if (countdownTimer) clearInterval(countdownTimer);
   if (vipRefreshTimer) clearInterval(vipRefreshTimer);
+  if (notificationRefreshTimer) clearInterval(notificationRefreshTimer);
 
   const { error } = await db.auth.signOut();
 
   if (error) {
-
     alert("Unable to log out. Please try again.");
-
     button.disabled = false;
     button.textContent = "Log out";
-
     return;
   }
 
   window.location.replace("index.html");
-
 });
-
 
 // ===================================
 // VIP CHECKOUT
@@ -1277,10 +1366,11 @@ $("vipButton").addEventListener("click", () => {
   window.location.href = "payment.html?type=vip";
 });
 
-// Register CODEFC service worker.
+// ===================================
+// SERVICE WORKER
+// ===================================
 
 if ("serviceWorker" in navigator) {
-
   navigator.serviceWorker
     .register("./service-worker.js")
     .then(() => {
@@ -1289,9 +1379,7 @@ if ("serviceWorker" in navigator) {
     .catch(error => {
       console.error("Service worker registration failed:", error);
     });
-
 }
-
 
 // ===================================
 // START DASHBOARD
