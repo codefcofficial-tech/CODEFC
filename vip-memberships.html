@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Membership Management | CODEFC</title>
+
+<script src="supabase.js"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #080B08;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+h1 {
+  color: #39FF14;
+  font-size: 25px;
+  margin: 0;
+}
+
+.subtitle {
+  color: #aaa;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+button, select, input {
+  font: inherit;
+}
+
+button {
+  background: #39FF14;
+  color: #000;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 7px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.back {
+  background: #171D17;
+  color: #39FF14;
+  border: 1px solid #283528;
+  text-decoration: none;
+  padding: 11px 15px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.stat {
+  background: #111711;
+  border: 1px solid #263326;
+  border-radius: 10px;
+  padding: 17px;
+}
+
+.stat span {
+  color: #aaa;
+  font-size: 12px;
+}
+
+.stat strong {
+  display: block;
+  color: #39FF14;
+  font-size: 25px;
+  margin-top: 9px;
+}
+
+.panel {
+  background: #101510;
+  border: 1px solid #263326;
+  border-radius: 10px;
+  padding: 17px;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+input, select {
+  background: #080B08;
+  color: white;
+  border: 1px solid #344034;
+  border-radius: 7px;
+  padding: 12px;
+  outline: none;
+}
+
+input {
+  flex: 1;
+  min-width: 180px;
+}
+
+select {
+  min-width: 140px;
+}
+
+.membership {
+  background: #0b100b;
+  border: 1px solid #293529;
+  border-radius: 9px;
+  padding: 16px;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+
+.member-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.member-title {
+  color: #39FF14;
+  font-weight: bold;
+}
+
+.status {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #19321a;
+  color: #39FF14;
+}
+
+.status.expired {
+  background: #332020;
+  color: #ff7777;
+}
+
+.status.other {
+  background: #292929;
+  color: #ccc;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.detail span {
+  display: block;
+  color: #888;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.detail strong {
+  font-size: 13px;
+  font-weight: normal;
+  color: #eee;
+  word-break: break-word;
+}
+
+.empty, .loading, .error {
+  text-align: center;
+  padding: 30px 12px;
+  color: #aaa;
+}
+
+.error {
+  color: #ff7777;
+}
+
+.count {
+  color: #999;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+@media(max-width: 550px) {
+  body {
+    padding: 14px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .details {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 21px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div>
+    <h1>VIP Memberships</h1>
+    <div class="subtitle">CODEFC Founder Membership Control</div>
+  </div>
+
+  <a class="back" href="admin-dashboard.html">← Founder Dashboard</a>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <span>Total Memberships</span>
+    <strong id="totalCount">—</strong>
+  </div>
+
+  <div class="stat">
+    <span>Active Memberships</span>
+    <strong id="activeCount">—</strong>
+  </div>
+
+  <div class="stat">
+    <span>Expired Memberships</span>
+    <strong id="expiredCount">—</strong>
+  </div>
+</div>
+
+<div class="panel">
+
+  <div class="controls">
+    <input
+      type="search"
+      id="searchInput"
+      placeholder="Search member ID or payment reference..."
+    >
+
+    <select id="statusFilter">
+      <option value="all">All memberships</option>
+      <option value="active">Active</option>
+      <option value="expired">Expired</option>
+      <option value="other">Other statuses</option>
+    </select>
+
+    <button id="refreshButton" type="button">Refresh</button>
+  </div>
+
+  <div class="count" id="resultCount"></div>
+
+  <div id="membershipList">
+    <div class="loading">Loading VIP memberships...</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const db = window.CODEFC_DB;
+
+const membershipList = document.getElementById("membershipList");
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+
+let memberships = [];
+
+function formatDate(value) {
+  if (!value) return "Not available";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "Invalid date";
+
+  return date.toLocaleString();
+}
+
+function effectiveStatus(member) {
+  if (
+    member.expires_at &&
+    new Date(member.expires_at).getTime() <= Date.now() &&
+    member.status === "active"
+  ) {
+    return "expired";
+  }
+
+  return String(member.status || "unknown").toLowerCase();
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function renderMemberships() {
+  const search = searchInput.value.trim().toLowerCase();
+  const filter = statusFilter.value;
+
+  const filtered = memberships.filter(member => {
+    const status = effectiveStatus(member);
+
+    const matchesSearch =
+      String(member.user_id || "").toLowerCase().includes(search) ||
+      String(member.id || "").toLowerCase().includes(search) ||
+      String(member.payment_reference || "").toLowerCase().includes(search);
+
+    let matchesStatus = true;
+
+    if (filter === "active") {
+      matchesStatus = status === "active";
+    } else if (filter === "expired") {
+      matchesStatus = status === "expired";
+    } else if (filter === "other") {
+      matchesStatus = status !== "active" && status !== "expired";
+    }
+
+    return matchesSearch && matchesStatus;
+  });
+
+  document.getElementById("resultCount").textContent =
+    `${filtered.length} membership(s) displayed`;
+
+  if (!filtered.length) {
+    membershipList.innerHTML =
+      '<div class="empty">No matching VIP memberships found.</div>';
+    return;
+  }
+
+  membershipList.innerHTML = filtered.map(member => {
+    const status = effectiveStatus(member);
+
+    let statusClass = "other";
+    if (status === "active") statusClass = "";
+    if (status === "expired") statusClass = "expired";
+
+    return `
+      <div class="membership">
+
+        <div class="member-top">
+          <div class="member-title">VIP MEMBERSHIP</div>
+          <span class="status ${statusClass}">
+            ${escapeHTML(status.toUpperCase())}
+          </span>
+        </div>
+
+        <div class="details">
+
+          <div class="detail">
+            <span>Membership ID</span>
+            <strong>${escapeHTML(member.id)}</strong>
+          </div>
+
+          <div class="detail">
+            <span>User ID</span>
+            <strong>${escapeHTML(member.user_id)}</strong>
+          </div>
+
+          <div class="detail">
+            <span>Membership Amount</span>
+            <strong>₦${Number(member.amount_ngn || 0).toLocaleString("en-NG")}</strong>
+          </div>
+
+          <div class="detail">
+            <span>Database Status</span>
+            <strong>${escapeHTML(member.status)}</strong>
+          </div>
+
+          <div class="detail">
+            <span>Membership Start</span>
+            <strong>${escapeHTML(formatDate(member.starts_at))}</strong>
+          </div>
+
+          <div class="detail">
+            <span>Membership Expiry</span>
+            <strong>${escapeHTML(formatDate(member.expires_at))}</strong>
+          </div>
+
+          <div class="detail">
+            <span>Payment Reference</span>
+            <strong>${escapeHTML(member.payment_reference || "Not available")}</strong>
+          </div>
+
+          <div class="detail">
+            <span>Date Created</span>
+            <strong>${escapeHTML(formatDate(member.created_at))}</strong>
+          </div>
+
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function loadMemberships() {
+  membershipList.innerHTML =
+    '<div class="loading">Loading VIP memberships...</div>';
+
+  try {
+    if (!db) {
+      throw new Error("CODEFC database connection was not found.");
+    }
+
+    const { data: sessionData, error: sessionError } =
+      await db.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const session = sessionData.session;
+
+    if (!session) {
+      window.location.href = "founder-vault.html";
+      return;
+    }
+
+    const { data: profile, error: profileError } = await db
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", session.user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    if (!profile || profile.is_admin !== true) {
+      document.body.innerHTML =
+        "<h2 style='color:#ff7777;text-align:center;margin-top:80px'>Access denied.</h2>";
+      return;
+    }
+
+    const { data, error } = await db
+      .from("vip_memberships")
+      .select(`
+        id,
+        user_id,
+        amount_ngn,
+        starts_at,
+        expires_at,
+        status,
+        payment_reference,
+        created_at
+      `)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    memberships = data || [];
+
+    const now = Date.now();
+
+    const active = memberships.filter(member =>
+      member.status === "active" &&
+      (!member.expires_at ||
+       new Date(member.expires_at).getTime() > now)
+    ).length;
+
+    const expired = memberships.filter(member =>
+      member.status === "expired" ||
+      (
+        member.status === "active" &&
+        member.expires_at &&
+        new Date(member.expires_at).getTime() <= now
+      )
+    ).length;
+
+    document.getElementById("totalCount").textContent =
+      memberships.length;
+
+    document.getElementById("activeCount").textContent = active;
+    document.getElementById("expiredCount").textContent = expired;
+
+    renderMemberships();
+
+  } catch (error) {
+    console.error("VIP membership error:", error);
+
+    membershipList.innerHTML = `
+      <div class="error">
+        Unable to load VIP memberships.<br><br>
+        ${escapeHTML(error.message || "Unknown error")}
+      </div>
+    `;
+  }
+}
+
+searchInput.addEventListener("input", renderMemberships);
+statusFilter.addEventListener("change", renderMemberships);
+document.getElementById("refreshButton")
+  .addEventListener("click", loadMemberships);
+
+loadMemberships();
+</script>
+
+</body>
+      </html>
+      
