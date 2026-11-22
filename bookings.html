@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080B08">
+<title>Booking Code Management | CODEFC</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080B08;color:#F5F5F5;font-family:Arial,sans-serif;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;padding:17px 5%;border-bottom:1px solid #263126;background:#080B08;position:sticky;top:0;z-index:5}
+.logo{color:#39FF14;font-size:23px;font-weight:900}
+.header-actions{display:flex;gap:9px;align-items:center}
+button,a{cursor:pointer}
+.header-btn{background:transparent;border:1px solid #394339;color:white;padding:9px 12px;border-radius:7px;text-decoration:none;font-size:12px}
+main{max-width:1150px;margin:auto;padding:28px 5%}
+h1{font-size:25px;margin-bottom:8px}
+.muted{color:#929B92;font-size:12px;line-height:1.6}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:23px 0}
+.card{background:#111811;border:1px solid #263126;border-radius:11px;padding:15px;min-width:0}
+.card-label{font-size:11px;color:#929B92}
+.card-number{font-size:25px;font-weight:bold;color:#39FF14;margin-top:10px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:20px 0}
+input,select{width:100%;background:#111811;border:1px solid #394839;color:white;padding:12px;border-radius:7px;outline:none;min-width:0}
+input:focus,select:focus{border-color:#39FF14}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px;flex-wrap:wrap}
+.refresh{background:#172217;border:1px solid #345034;color:#39FF14;padding:10px 14px;border-radius:7px;font-weight:bold}
+#message{font-size:12px;color:#929B92;margin:14px 0;line-height:1.6}
+.list{display:grid;gap:12px}
+.code-card{background:#111811;border:1px solid #263126;border-radius:11px;padding:17px}
+.code-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.code-title{font-size:15px;font-weight:bold;line-height:1.5}
+.meta{color:#A0AAA0;font-size:11px;line-height:1.8;margin-top:9px;overflow-wrap:anywhere}
+.secret{margin-top:12px;padding:11px;background:#080B08;border:1px solid #263126;border-radius:7px;font-size:12px;overflow-wrap:anywhere}
+.secret-label{color:#929B92;font-size:10px;margin-bottom:5px}
+.secret-value{color:#39FF14;font-weight:bold;letter-spacing:.5px}
+.badge{font-size:10px;font-weight:bold;padding:6px 9px;border-radius:20px;white-space:nowrap}
+.free{background:#12351D;color:#39FF14}
+.paid{background:#152B45;color:#82B9FF}
+.vip{background:#26183D;color:#C49AFF}
+.active{background:#12351D;color:#39FF14}
+.disabled{background:#351717;color:#FF9999}
+.expired{background:#282828;color:#B8B8B8}
+.card-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.status-select{max-width:180px;padding:9px;font-size:12px}
+.save-btn{background:#39FF14;color:#080B08;border:0;padding:10px 14px;border-radius:7px;font-weight:bold}
+.empty{padding:35px;text-align:center;background:#111811;border:1px solid #263126;border-radius:10px;color:#929B92;font-size:13px}
+@media(max-width:650px){
+main{padding:23px 4%}
+.summary{grid-template-columns:repeat(2,1fr)}
+.filters{grid-template-columns:1fr}
+h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">CODEFC</div>
+ <div class="header-actions">
+  <a class="header-btn" href="admin-dashboard.html">← Dashboard</a>
+  <button class="header-btn" id="logoutBtn">Log out</button>
+ </div>
+</header>
+
+<main>
+ <h1>Booking Code Management</h1>
+ <p class="muted">View and manage all published FREE, Individual PAID and VIP booking codes.</p>
+
+ <section class="summary">
+  <div class="card"><div class="card-label">TOTAL CODES</div><div class="card-number" id="totalCount">—</div></div>
+  <div class="card"><div class="card-label">FREE CODES</div><div class="card-number" id="freeCount">—</div></div>
+  <div class="card"><div class="card-label">PAID CODES</div><div class="card-number" id="paidCount">—</div></div>
+  <div class="card"><div class="card-label">VIP CODES</div><div class="card-number" id="vipCount">—</div></div>
+ </section>
+
+ <div class="filters">
+  <input id="searchInput" placeholder="Search match, competition or booking code...">
+  <select id="typeFilter">
+   <option value="all">All categories</option>
+   <option value="free">FREE</option>
+   <option value="paid">Individual PAID</option>
+   <option value="vip">VIP</option>
+  </select>
+  <select id="statusFilter">
+   <option value="all">All statuses</option>
+   <option value="active">Active</option>
+   <option value="disabled">Disabled</option>
+   <option value="expired">Expired</option>
+  </select>
+ </div>
+
+ <div class="toolbar">
+  <p class="muted" id="resultCount">Loading booking codes...</p>
+  <button class="refresh" id="refreshBtn">↻ Refresh Codes</button>
+ </div>
+
+ <p id="message">Verifying Founder access...</p>
+ <section class="list" id="codeList"></section>
+</main>
+
+<script>
+const db = window.CODEFC_DB;
+let allCodes = [];
+
+function esc(value){
+ return String(value ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function setMessage(text,color="#929B92"){
+ const el=document.getElementById("message");
+ el.textContent=text;
+ el.style.color=color;
+}
+
+function dateText(value){
+ if(!value) return "Not available";
+ const d=new Date(value);
+ return Number.isNaN(d.getTime())?"Invalid date":d.toLocaleString();
+}
+
+function effectiveStatus(code){
+ if(code.status==="disabled") return "disabled";
+ if(code.status==="expired" || (code.expires_at && new Date(code.expires_at)<=new Date())) return "expired";
+ return code.status;
+}
+
+async function loadCodes(){
+ setMessage("Loading booking codes...");
+ document.getElementById("refreshBtn").disabled=true;
+
+ try{
+  const {data:codes,error}=await db.from("codes")
+   .select("id,platform,match_title,competition,access_type,price_ngn,match_starts_at,expires_at,status,created_at,odds")
+   .order("created_at",{ascending:false});
+  if(error) throw error;
+
+  const {data:secrets,error:secretError}=await db.from("code_secrets")
+   .select("code_id,booking_code");
+  if(secretError) throw secretError;
+
+  const secretMap=new Map((secrets||[]).map(s=>[s.code_id,s.booking_code]));
+  allCodes=(codes||[]).map(c=>({...c,booking_code:secretMap.get(c.id)||null}));
+
+  document.getElementById("totalCount").textContent=allCodes.length;
+  document.getElementById("freeCount").textContent=allCodes.filter(c=>c.access_type==="free").length;
+  document.getElementById("paidCount").textContent=allCodes.filter(c=>c.access_type==="paid").length;
+  document.getElementById("vipCount").textContent=allCodes.filter(c=>c.access_type==="vip").length;
+
+  renderCodes();
+  setMessage("Booking codes loaded successfully.","#39FF14");
+ }catch(error){
+  console.error(error);
+  setMessage("Unable to load booking codes: "+error.message,"#FF9999");
+ }finally{
+  document.getElementById("refreshBtn").disabled=false;
+ }
+}
+
+function renderCodes(){
+ const search=document.getElementById("searchInput").value.trim().toLowerCase();
+ const type=document.getElementById("typeFilter").value;
+ const status=document.getElementById("statusFilter").value;
+
+ const filtered=allCodes.filter(c=>{
+  const currentStatus=effectiveStatus(c);
+  const searchable=[c.match_title,c.competition,c.platform,c.booking_code,c.id].join(" ").toLowerCase();
+  return (type==="all"||c.access_type===type) &&
+   (status==="all"||currentStatus===status) &&
+   searchable.includes(search);
+ });
+
+ document.getElementById("resultCount").textContent=filtered.length+" booking code(s) found";
+ const list=document.getElementById("codeList");
+
+ if(!filtered.length){
+  list.innerHTML='<div class="empty">No booking codes match your search.</div>';
+  return;
+ }
+
+ list.innerHTML=filtered.map(c=>{
+  const typeClass=c.access_type==="free"?"free":c.access_type==="paid"?"paid":"vip";
+  const currentStatus=effectiveStatus(c);
+  const id=esc(c.id);
+
+  return `
+   <article class="code-card">
+    <div class="code-top">
+     <div>
+      <div class="code-title">${esc(c.match_title)}</div>
+      <div class="meta">${esc(c.competition)} · ${esc(c.platform)}</div>
+     </div>
+     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <span class="badge ${typeClass}">${esc(c.access_type).toUpperCase()}</span>
+      <span class="badge ${currentStatus}">${esc(currentStatus).toUpperCase()}</span>
+     </div>
+    </div>
+    <div class="meta">
+     Odds: ${esc(c.odds)}<br>
+     Price: ₦${Number(c.price_ngn||0).toLocaleString()}<br>
+     Match starts: ${esc(dateText(c.match_starts_at))}<br>
+     Expires: ${esc(dateText(c.expires_at))}<br>
+     Published: ${esc(dateText(c.created_at))}<br>
+     Code ID: ${id}
+    </div>
+    <div class="secret">
+     <div class="secret-label">PRIVATE BOOKING CODE — FOUNDER ONLY</div>
+     <div class="secret-value">${c.booking_code?esc(c.booking_code):"No secret record found"}</div>
+    </div>
+    <div class="card-actions">
+     <select class="status-select" data-status="${id}">
+      <option value="active" ${c.status==="active"?"selected":""}>Active</option>
+      <option value="disabled" ${c.status==="disabled"?"selected":""}>Disabled</option>
+      <option value="expired" ${c.status==="expired"?"selected":""}>Expired</option>
+     </select>
+     <button class="save-btn" data-save="${id}">Save Status</button>
+    </div>
+   </article>`;
+ }).join("");
+
+ list.querySelectorAll("[data-save]").forEach(button=>{
+  button.addEventListener("click",()=>saveStatus(button.dataset.save));
+ });
+}
+
+async function saveStatus(id){
+ const select=document.querySelector(`[data-status="${CSS.escape(id)}"]`);
+ const newStatus=select.value;
+ if(!["active","disabled","expired"].includes(newStatus)) return;
+
+ if(!confirm("Change this booking code status to "+newStatus.toUpperCase()+"?")) return;
+
+ setMessage("Saving code status...");
+ try{
+  const {error}=await db.from("codes")
+   .update({status:newStatus})
+   .eq("id",id);
+  if(error) throw error;
+
+  setMessage("Booking code status updated successfully.","#39FF14");
+  await loadCodes();
+ }catch(error){
+  console.error(error);
+  setMessage("Status update failed: "+error.message,"#FF9999");
+ }
+}
+
+async function initialize(){
+ if(!db){
+  setMessage("Database connection unavailable.","#FF9999");
+  return;
+ }
+ try{
+  const {data,error}=await db.auth.getSession();
+  if(error) throw error;
+  if(!data.session){
+   location.replace("login.html");
+   return;
+  }
+
+  const {data:profile,error:profileError}=await db.from("profiles")
+   .select("is_admin")
+   .eq("id",data.session.user.id)
+   .maybeSingle();
+
+  if(profileError) throw profileError;
+  if(!profile||profile.is_admin!==true){
+   await db.auth.signOut();
+   location.replace("login.html");
+   return;
+  }
+
+  await loadCodes();
+ }catch(error){
+  console.error(error);
+  setMessage("Founder verification failed: "+error.message,"#FF9999");
+ }
+}
+
+document.getElementById("refreshBtn").addEventListener("click",loadCodes);
+document.getElementById("searchInput").addEventListener("input",renderCodes);
+document.getElementById("typeFilter").addEventListener("change",renderCodes);
+document.getElementById("statusFilter").addEventListener("change",renderCodes);
+
+document.getElementById("logoutBtn").addEventListener("click",async()=>{
+ const {error}=await db.auth.signOut();
+ if(error){alert(error.message);return;}
+ location.replace("login.html");
+});
+
+initialize();
+</script>
+</body>
+  </html>
+  
