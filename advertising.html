@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080B08">
+<title>Advertising Management | CODEFC</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080B08;color:#fff;font-family:Arial,sans-serif}
+header{padding:18px 5%;border-bottom:1px solid #263326;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{font-size:23px;font-weight:900;color:#39FF14}
+.header-actions{display:flex;gap:9px}
+button,a{cursor:pointer}
+button{font-weight:bold}
+.header-btn{background:#111811;color:#39FF14;border:1px solid #344034;border-radius:7px;padding:10px 13px;text-decoration:none;font-size:12px}
+main{max-width:1200px;margin:auto;padding:25px 5%}
+h1{font-size:25px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 15px}
+.muted{color:#929B92;font-size:12px;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:22px 0}
+.stat,.panel{background:#111811;border:1px solid #263326;border-radius:10px;padding:16px}
+.stat span{font-size:11px;color:#929B92}
+.stat strong{display:block;font-size:25px;color:#39FF14;margin-top:9px}
+.tabs{display:flex;gap:8px;overflow-x:auto;margin:20px 0}
+.tab{white-space:nowrap;background:#111811;color:#aaa;border:1px solid #344034;border-radius:7px;padding:11px 14px}
+.tab.selected{background:#193019;color:#39FF14;border-color:#39FF14}
+.section{display:none}
+.section.show{display:block}
+input,select,textarea{width:100%;background:#080B08;color:white;border:1px solid #394839;border-radius:7px;padding:11px;margin-top:6px;outline:none;min-width:0}
+label{display:block;font-size:12px;color:#aaa;margin-bottom:13px}
+textarea{min-height:65px;resize:vertical}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.primary{background:#39FF14;color:#080B08;border:0;border-radius:7px;padding:12px 16px}
+.secondary{background:#172217;color:#39FF14;border:1px solid #345034;border-radius:7px;padding:10px 13px}
+.danger{background:#351717;color:#ff9999;border:1px solid #633030;border-radius:7px;padding:9px 12px}
+.card{background:#0b100b;border:1px solid #293529;border-radius:9px;padding:15px;margin-top:12px;overflow-wrap:anywhere}
+.card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title{font-size:14px;font-weight:bold;color:#39FF14}
+.meta{font-size:11px;color:#aaa;line-height:1.8;margin-top:9px;overflow-wrap:anywhere}
+.pill{font-size:10px;padding:6px 9px;border-radius:20px;background:#252525;color:#ddd;font-weight:bold}
+.pill.active,.pill.approved{background:#15351a;color:#39FF14}
+.pill.pending{background:#332b15;color:#ffd27a}
+.pill.rejected,.pill.paused{background:#351717;color:#ff9999}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.actions button{font-size:11px}
+.preview{max-width:100%;max-height:170px;object-fit:contain;margin-top:10px;border-radius:7px;background:#080B08}
+.message{font-size:12px;color:#aaa;margin:12px 0;line-height:1.6}
+.empty{text-align:center;color:#999;padding:25px}
+small{color:#929B92}
+@media(max-width:650px){
+main{padding:20px 4%}
+.stats{grid-template-columns:repeat(2,1fr)}
+.grid{grid-template-columns:1fr}
+h1{font-size:22px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">CODEFC</div>
+  <div class="header-actions">
+    <a class="header-btn" href="admin-dashboard.html">← Dashboard</a>
+    <button class="header-btn" id="logoutBtn">Log out</button>
+  </div>
+</header>
+
+<main>
+  <h1>Advertising Management</h1>
+  <p class="muted">Founder-controlled advertising, advertiser approval, banner publication and payment verification.</p>
+
+  <div class="stats">
+    <div class="stat"><span>ADVERTISERS</span><strong id="advertiserCount">—</strong></div>
+    <div class="stat"><span>TOTAL ADS</span><strong id="adCount">—</strong></div>
+    <div class="stat"><span>ACTIVE ADS</span><strong id="activeCount">—</strong></div>
+    <div class="stat"><span>PENDING PAYMENTS</span><strong id="paymentCount">—</strong></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab selected" data-tab="advertisers">Advertisers</button>
+    <button class="tab" data-tab="create">Create Advertisement</button>
+    <button class="tab" data-tab="ads">Advertisements</button>
+    <button class="tab" data-tab="payments">Payments</button>
+  </div>
+
+  <section class="section show" id="advertisers">
+    <div class="panel">
+      <h2>Advertiser Applications</h2>
+      <p class="muted">Review advertiser information before granting advertising access.</p>
+      <div id="advertiserList" class="message">Loading advertisers...</div>
+    </div>
+  </section>
+
+  <section class="section" id="create">
+    <div class="panel">
+      <h2>Create Advertisement</h2>
+      <p class="muted">Only approved advertisers can be selected. Every ad requires a destination link.</p>
+
+      <form id="adForm">
+        <label>Approved advertiser
+          <select id="advertiserSelect" required>
+            <option value="">Select advertiser</option>
+          </select>
+        </label>
+
+        <label>Advertisement title
+          <input id="adTitle" maxlength="150" required placeholder="Example: Download our app">
+        </label>
+
+        <label>Banner image
+          <input id="adImage" type="file" accept="image/png,image/jpeg,image/webp" required>
+          <small>Upload a PNG, JPG or WebP banner.</small>
+          <img id="imagePreview" class="preview" hidden>
+        </label>
+
+        <label>Destination link (required)
+          <input id="destinationUrl" type="url" required placeholder="https://example.com">
+          <small>This is where visitors go when they click the advertisement.</small>
+        </label>
+
+        <div class="grid">
+          <label>Placement
+            <select id="placement" required>
+              <option value="">Choose placement</option>
+              <option value="homepage">Homepage</option>
+              <option value="dashboard">Dashboard</option>
+              <option value="codes">Booking Codes</option>
+              <option value="vip">VIP Area</option>
+              <option value="all">All eligible pages</option>
+            </select>
+          </label>
+
+          <label>Advertising price (₦)
+            <input id="adPrice" type="number" min="0" step="1" required>
+          </label>
+
+          <label>Start date and time
+            <input id="startDate" type="datetime-local" required>
+          </label>
+
+          <label>Expiry date and time
+            <input id="endDate" type="datetime-local" required>
+          </label>
+        </div>
+
+        <label>Call-to-action text (optional)
+          <input id="ctaText" maxlength="40" placeholder="Visit Now / Download App / Join Now">
+        </label>
+
+        <button class="primary" type="submit" id="createButton">Create Advertisement</button>
+        <p class="message" id="createMessage"></p>
+      </form>
+    </div>
+  </section>
+
+  <section class="section" id="ads">
+    <div class="panel">
+      <h2>All Advertisements</h2>
+      <p class="muted">Review banners, destination links, placements, schedules and publication status.</p>
+      <div id="adList" class="message">Loading advertisements...</div>
+    </div>
+  </section>
+
+  <section class="section" id="payments">
+    <div class="panel">
+      <h2>Advertising Payments</h2>
+      <p class="muted">Verify submitted advertising payments manually. Approving a payment does not automatically publish an advertisement.</p>
+      <div id="paymentList" class="message">Loading payments...</div>
+    </div>
+  </section>
+
+  <p class="message" id="globalMessage"></p>
+</main>
+<script>
+const db = window.CODEFC_DB;
+
+let advertisers = [];
+let advertisements = [];
+let payments = [];
+
+const $ = id => document.getElementById(id);
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function dateText(value) {
+  if (!value) return "Not set";
+  return new Date(value).toLocaleString();
+}
+
+function validUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function showMessage(message, isError = false) {
+  const el = $("globalMessage");
+  el.textContent = message;
+  el.style.color = isError ? "#ff6868" : "#39FF14";
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll("[data-tab]").forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === tabName);
+  });
+
+  document.querySelectorAll(".tab-panel").forEach(panel => {
+    panel.classList.toggle("active", panel.id === tabName);
+  });
+}
+
+document.querySelectorAll("[data-tab]").forEach(button => {
+  button.addEventListener("click", () => switchTab(button.dataset.tab));
+});
+
+async function verifyFounder() {
+  if (!db) {
+    showMessage("Database connection unavailable. Check your Supabase scripts.", true);
+    return false;
+  }
+
+  const { data: { session }, error: sessionError } = await db.auth.getSession();
+
+  if (sessionError || !session) {
+    location.href = "founder-vault.html";
+    return false;
+  }
+
+  const { data: profile, error } = await db
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", session.user.id)
+    .single();
+
+  if (error || profile?.is_admin !== true) {
+    await db.auth.signOut();
+    location.href = "founder-vault.html";
+    return false;
+  }
+
+  return true;
+}
+
+async function loadAll() {
+  showMessage("Loading advertising records...");
+
+  const results = await Promise.all([
+    db.from("advertisers").select("*").order("created_at", { ascending: false }),
+    db.from("advertisements").select("*").order("created_at", { ascending: false }),
+    db.from("ad_payments").select("*").order("created_at", { ascending: false })
+  ]);
+
+  if (results.some(result => result.error)) {
+    console.error(results.map(result => result.error).filter(Boolean));
+    showMessage("Could not load advertising records. Check the database policies.", true);
+    return;
+  }
+
+  advertisers = results[0].data || [];
+  advertisements = results[1].data || [];
+  payments = results[2].data || [];
+
+  $("advertiserCount").textContent = advertisers.length;
+  $("adCount").textContent = advertisements.length;
+  $("paymentCount").textContent = payments.filter(p => p.status === "pending").length;
+
+  renderAdvertisers();
+  fillAdvertiserSelect();
+  renderAds();
+  renderPayments();
+
+  showMessage("Advertising records loaded successfully.");
+}
+
+function renderAdvertisers() {
+  const container = $("advertisersList");
+
+  if (!advertisers.length) {
+    container.innerHTML = '<p class="empty">No advertiser applications yet.</p>';
+    return;
+  }
+
+  container.innerHTML = advertisers.map(advertiser => `
+    <div class="record">
+      <div class="record-main">
+        <strong>${esc(advertiser.business_name)}</strong>
+        <span>${esc(advertiser.contact_name || "No contact name")}</span>
+        <span>${esc(advertiser.email || "No email")} · ${esc(advertiser.phone || "No phone")}</span>
+        <span>Status: <b>${esc(advertiser.status)}</b></span>
+        ${advertiser.website_url ? `<a href="${esc(advertiser.website_url)}" target="_blank" rel="noopener noreferrer">Visit website</a>` : ""}
+        ${advertiser.founder_notes ? `<small>Founder note: ${esc(advertiser.founder_notes)}</small>` : ""}
+      </div>
+      <div class="record-actions">
+        <button class="small-btn" onclick="setAdvertiserStatus('${advertiser.id}','approved')">Approve</button>
+        <button class="small-btn danger" onclick="setAdvertiserStatus('${advertiser.id}','rejected')">Reject</button>
+        <button class="small-btn danger" onclick="setAdvertiserStatus('${advertiser.id}','suspended')">Suspend</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function fillAdvertiserSelect() {
+  const select = $("advertiserId");
+
+  const approved = advertisers.filter(a => a.status === "approved");
+
+  select.innerHTML = '<option value="">Choose an approved advertiser</option>' +
+    approved.map(a =>
+      `<option value="${esc(a.id)}">${esc(a.business_name)}</option>`
+    ).join("");
+
+  if (!approved.length) {
+    select.innerHTML = '<option value="">No approved advertisers available</option>';
+  }
+}
+
+async function setAdvertiserStatus(id, status) {
+  if (!confirm(`Change this advertiser's status to ${status}?`)) return;
+
+  const { error } = await db
+    .from("advertisers")
+    .update({
+      status,
+      reviewed_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    showMessage(error.message, true);
+    return;
+  }
+
+  showMessage("Advertiser status updated.");
+  await loadAll();
+}
+
+$("adImage").addEventListener("change", () => {
+  const file = $("adImage").files[0];
+  if (!file) return;
+
+  const allowed = ["image/png", "image/jpeg", "image/webp"];
+
+  if (!allowed.includes(file.type)) {
+    $("adImage").value = "";
+    showMessage("Choose a PNG, JPG, or WebP banner image.", true);
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    $("adImage").value = "";
+    showMessage("Banner image must be 5MB or smaller.", true);
+    return;
+  }
+
+  showMessage("Banner image selected.");
+});
+
+$("adForm").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const advertiserId = $("advertiserId").value;
+  const title = $("adTitle").value.trim();
+  const destinationUrl = $("destinationUrl").value.trim();
+  const placement = $("placement").value;
+  const price = Number($("adPrice").value);
+  const startsAt = $("startsAt").value;
+  const endsAt = $("endsAt").value;
+  const file = $("adImage").files[0];
+
+  if (!advertiserId || !title || !file || !destinationUrl || !placement || !Number.isFinite(price) || price < 0) {
+    showMessage("Complete all required fields before creating the advertisement.", true);
+    return;
+  }
+
+  if (!validUrl(destinationUrl)) {
+    showMessage("Enter a valid destination link beginning with http:// or https://.", true);
+    return;
+  }
+
+  if (!startsAt || !endsAt || new Date(endsAt) <= new Date(startsAt)) {
+    showMessage("Choose a valid start and end date. The end must be later than the start.", true);
+    return;
+  }
+
+  const advertiser = advertisers.find(a => a.id === advertiserId);
+
+  if (!advertiser || advertiser.status !== "approved") {
+    showMessage("Only approved advertisers can have advertisements created.", true);
+    return;
+  }
+
+  const extension = file.type === "image/png" ? "png" :
+    file.type === "image/webp" ? "webp" : "jpg";
+
+  const filePath = `${advertiserId}/${crypto.randomUUID()}.${extension}`;
+
+  const submitButton = $("createAdButton");
+  submitButton.disabled = true;
+  submitButton.textContent = "Uploading banner...";
+
+  try {
+    const { error: uploadError } = await db.storage
+      .from("ad-banners")
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicData } = db.storage
+      .from("ad-banners")
+      .getPublicUrl(filePath);
+
+    if (!publicData?.publicUrl) {
+      throw new Error("Could not generate the banner image URL.");
+    }
+
+    submitButton.textContent = "Creating advertisement...";
+
+    const { error: insertError } = await db
+      .from("advertisements")
+      .insert({
+        advertiser_id: advertiserId,
+        title,
+        image_url: publicData.publicUrl,
+        destination_url: destinationUrl,
+        placement,
+        price_ngn: price,
+        starts_at: new Date(startsAt).toISOString(),
+        ends_at: new Date(endsAt).toISOString(),
+        status: "pending_payment"
+      });
+
+    if (insertError) throw insertError;
+
+    $("adForm").reset();
+    showMessage("Advertisement created. It is awaiting payment verification and approval.");
+    await loadAll();
+
+  } catch (error) {
+    console.error(error);
+    showMessage(error.message || "Could not create advertisement.", true);
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Create Advertisement";
+  }
+});
+function renderAds() {
+  const container = $("adsList");
+
+  if (!advertisements.length) {
+    container.innerHTML = '<p class="empty">No advertisements created yet.</p>';
+    return;
+  }
+
+  container.innerHTML = advertisements.map(ad => `
+    <div class="record">
+      <img class="banner-preview" src="${esc(ad.image_url)}" alt="Advertisement banner">
+      <div class="record-main">
+        <strong>${esc(ad.title)}</strong>
+        <span>Placement: ${esc(ad.placement)}</span>
+        <span>Price: ₦${Number(ad.price_ngn).toLocaleString("en-NG")}</span>
+        <span>Status: <b>${esc(ad.status)}</b></span>
+        <span>Starts: ${dateText(ad.starts_at)}</span>
+        <span>Ends: ${dateText(ad.ends_at)}</span>
+        <a href="${esc(ad.destination_url)}" target="_blank" rel="noopener noreferrer">Test destination link</a>
+      </div>
+      <div class="record-actions">
+        <button class="small-btn" onclick="setAdStatus('${ad.id}','active')">Publish</button>
+        <button class="small-btn" onclick="setAdStatus('${ad.id}','paused')">Pause</button>
+        <button class="small-btn danger" onclick="setAdStatus('${ad.id}','rejected')">Reject</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function setAdStatus(id, status) {
+  const ad = advertisements.find(item => item.id === id);
+  if (!ad) return;
+
+  if (status === "active") {
+    if (!validUrl(ad.destination_url)) {
+      showMessage("This advertisement has no valid destination link.", true);
+      return;
+    }
+
+    if (!ad.image_url) {
+      showMessage("This advertisement has no banner image.", true);
+      return;
+    }
+
+    const approvedPayment = payments.some(payment =>
+      payment.advertisement_id === id && payment.status === "approved"
+    );
+
+    if (!approvedPayment) {
+      showMessage("You must approve a payment for this advertisement before publishing it.", true);
+      return;
+    }
+
+    if (!ad.starts_at || !ad.ends_at || new Date(ad.ends_at) <= new Date(ad.starts_at)) {
+      showMessage("This advertisement has an invalid schedule.", true);
+      return;
+    }
+
+    if (new Date(ad.ends_at) <= new Date()) {
+      showMessage("This advertisement's end date has already passed.", true);
+      return;
+    }
+
+    if (new Date(ad.starts_at) > new Date()) {
+      status = "scheduled";
+    }
+  }
+
+  if (!confirm(`Change this advertisement's status to ${status}?`)) return;
+
+  const { error } = await db
+    .from("advertisements")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) {
+    showMessage(error.message, true);
+    return;
+  }
+
+  showMessage("Advertisement status updated.");
+  await loadAll();
+}
+
+function renderPayments() {
+  const container = $("paymentsList");
+
+  if (!payments.length) {
+    container.innerHTML = '<p class="empty">No advertising payments submitted yet.</p>';
+    return;
+  }
+
+  container.innerHTML = payments.map(payment => {
+    const ad = advertisements.find(item => item.id === payment.advertisement_id);
+
+    return `
+      <div class="record">
+        <div class="record-main">
+          <strong>${esc(ad?.title || "Advertisement")}</strong>
+          <span>Amount: ₦${Number(payment.amount_ngn).toLocaleString("en-NG")}</span>
+          <span>Method: ${esc(payment.payment_method || "Not provided")}</span>
+          <span>Reference: ${esc(payment.payment_reference || "Not provided")}</span>
+          <span>Status: <b>${esc(payment.status)}</b></span>
+          ${payment.proof_url ? `<a href="${esc(payment.proof_url)}" target="_blank" rel="noopener noreferrer">View payment proof</a>` : ""}
+        </div>
+        <div class="record-actions">
+          <button class="small-btn" onclick="setPaymentStatus('${payment.id}','approved')">Approve payment</button>
+          <button class="small-btn danger" onclick="setPaymentStatus('${payment.id}','rejected')">Reject payment</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function setPaymentStatus(id, status) {
+  if (!confirm(`Are you sure you want to ${status} this payment?`)) return;
+
+  const { error } = await db
+    .from("ad_payments")
+    .update({
+      status,
+      reviewed_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    showMessage(error.message, true);
+    return;
+  }
+
+  showMessage("Payment status updated.");
+  await loadAll();
+}
+
+$("logoutButton").addEventListener("click", async () => {
+  await db.auth.signOut();
+  location.href = "founder-vault.html";
+});
+
+(async function initializeAdvertising() {
+  const isFounder = await verifyFounder();
+  if (!isFounder) return;
+
+  await loadAll();
+})();
+</script>
+</body>
+</html>
