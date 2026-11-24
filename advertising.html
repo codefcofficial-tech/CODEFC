@@ -218,11 +218,11 @@ function showMessage(message, isError = false) {
 
 function switchTab(tabName) {
   document.querySelectorAll("[data-tab]").forEach(button => {
-    button.classList.toggle("active", button.dataset.tab === tabName);
+    button.classList.toggle("selected", button.dataset.tab === tabName);
   });
 
-  document.querySelectorAll(".tab-panel").forEach(panel => {
-    panel.classList.toggle("active", panel.id === tabName);
+  document.querySelectorAll(".section").forEach(panel => {
+    panel.classList.toggle("show", panel.id === tabName);
   });
 }
 
@@ -290,7 +290,7 @@ async function loadAll() {
 }
 
 function renderAdvertisers() {
-  const container = $("advertisersList");
+  const container = $("advertiserList");
 
   if (!advertisers.length) {
     container.innerHTML = '<p class="empty">No advertiser applications yet.</p>';
@@ -317,7 +317,7 @@ function renderAdvertisers() {
 }
 
 function fillAdvertiserSelect() {
-  const select = $("advertiserId");
+  const container = $("advertiserList");const container = $("advertiserList");
 
   const approved = advertisers.filter(a => a.status === "approved");
 
@@ -380,8 +380,8 @@ $("adForm").addEventListener("submit", async event => {
   const destinationUrl = $("destinationUrl").value.trim();
   const placement = $("placement").value;
   const price = Number($("adPrice").value);
-  const startsAt = $("startsAt").value;
-  const endsAt = $("endsAt").value;
+  const startsAt = $("startDate").value;
+  const endsAt = $("endDate").value;
   const file = $("adImage").files[0];
 
   if (!advertiserId || !title || !file || !destinationUrl || !placement || !Number.isFinite(price) || price < 0) {
@@ -411,7 +411,7 @@ $("adForm").addEventListener("submit", async event => {
 
   const filePath = `${advertiserId}/${crypto.randomUUID()}.${extension}`;
 
-  const submitButton = $("createAdButton");
+ const submitButton = $("createButton"); 
   submitButton.disabled = true;
   submitButton.textContent = "Uploading banner...";
 
@@ -464,7 +464,7 @@ $("adForm").addEventListener("submit", async event => {
   }
 });
 function renderAds() {
-  const container = $("adsList");
+  const select = $("advertiserSelect");
 
   if (!advertisements.length) {
     container.innerHTML = '<p class="empty">No advertisements created yet.</p>';
@@ -548,7 +548,7 @@ async function setAdStatus(id, status) {
 }
 
 function renderPayments() {
-  const container = $("paymentsList");
+  const container = $("paymentList");
 
   if (!payments.length) {
     container.innerHTML = '<p class="empty">No advertising payments submitted yet.</p>';
@@ -597,7 +597,7 @@ async function setPaymentStatus(id, status) {
   await loadAll();
 }
 
-$("logoutButton").addEventListener("click", async () => {
+$("logoutBtn").addEventListener("click", async () => {
   await db.auth.signOut();
   location.href = "founder-vault.html";
 });
