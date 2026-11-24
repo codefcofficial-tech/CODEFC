@@ -386,6 +386,7 @@ $("adForm").addEventListener("submit", async event => {
 
   const advertiserId = $("advertiserSelect").value;
   const title = $("adTitle").value.trim();
+  const ctaText = $("ctaText").value.trim();
   const destinationUrl = $("destinationUrl").value.trim();
   const placement = $("placement").value;
   const price = Number($("adPrice").value);
@@ -449,6 +450,7 @@ $("adForm").addEventListener("submit", async event => {
       .insert({
         advertiser_id: advertiserId,
         title,
+        cta_text: ctaText || null,
         image_url: publicData.publicUrl,
         destination_url: destinationUrl,
         placement,
