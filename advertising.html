@@ -267,11 +267,19 @@ async function loadAll() {
     db.from("ad_payments").select("*").order("created_at", { ascending: false })
   ]);
 
-  if (results.some(result => result.error)) {
-    console.error(results.map(result => result.error).filter(Boolean));
-    showMessage("Could not load advertising records. Check the database policies.", true);
-    return;
-  }
+ const tableNames = ["advertisers", "advertisements", "ad_payments"];
+
+const errors = results
+  .map((result, index) =>
+    result.error ? tableNames[index] + ": " + result.error.message : null
+  )
+  .filter(Boolean);
+
+if (errors.length) {
+  console.error(errors);
+  showMessage(errors.join(" | "), true);
+  return;
+}
 
   advertisers = results[0].data || [];
   advertisements = results[1].data || [];
